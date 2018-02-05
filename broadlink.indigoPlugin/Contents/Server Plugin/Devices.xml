@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<Devices>
+
+	<Device type="custom" id="rmProPlusDevice">
+		<Name>RM Pro+</Name>
+		<ConfigUI>
+			<Field id="address" type="textfield" defaultValue="192.168.1.199">
+				<Label>RM Pro+ IP Address:</Label>
+			</Field>
+			<Field id="discoverDevice" type="button">
+				<Title>Discover</Title>
+				<CallbackMethod>_discover_device</CallbackMethod>
+			</Field>
+			<Field type="separator" id="simpleSeparator0" />
+
+			<Field id="commands" type="textfield" hidden="true">
+				<Label>Commands</Label>
+			</Field>
+			<Field id="savedCommandList" type="list" rows="5">
+				<Label>Saved Commands:</Label>
+				<List class="self" method="_get_saved_commands_list" dynamicReload="true"/>
+			</Field>
+			<Field id="deleteSavedCommands" type="button">
+				<Label/>
+				<Title>Delete Command(s)</Title>
+				<CallbackMethod>_delete_saved_commands</CallbackMethod>
+			</Field>
+			<Field id="reminder" type="label" fontSize="regular" fontColor="darkgray">
+				<Label>Remember to click Save to keep changes to this list!</Label>
+			</Field>
+
+			<Field type="separator" id="simpleSeparator1" />
+
+			<Field id="commandName" type="textfield">
+				<Label>New Command Name:</Label>
+			</Field>
+			<Field id="rawCommand" type="textfield">
+				<Label>Raw Command:</Label>
+			</Field>
+			<Field id="learnNewCommand" type="button">
+				<Title>Learn Command</Title>
+				<CallbackMethod>_learn_new_command</CallbackMethod>
+			</Field>
+			<Field id="instructions" type="label" fontSize="regular" fontColor="darkgray">
+				<Label>Click Learn Command, then point your remote and press a button.</Label>
+			</Field>
+			<Field id="saveNewCommand" type="button">
+				<Title>Add Command</Title>
+				<CallbackMethod>_save_new_command</CallbackMethod>
+			</Field>
+
+			<Field id="hideCommandLog" type="checkbox">
+				<Label>Hide Commands from Indigo Log?</Label>
+			</Field>
+
+		</ConfigUI>
+		<States>
+
+			<State id="lastRawCommand" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>Last Raw Command Was</TriggerLabel>
+				<ControlPageLabel>Last Raw Command</ControlPageLabel>
+			</State>
+
+			<State id="lastSavedCommand" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>Last Saved Command Was</TriggerLabel>
+				<ControlPageLabel>Last Saved Command</ControlPageLabel>
+			</State>
+
+			<State id="commandCounter" readonly="YES">
+				<ValueType>Integer</ValueType>
+				<TriggerLabel>Commands Sent Is</TriggerLabel>
+				<ControlPageLabel>Sent Commands Counter</ControlPageLabel>
+			</State>
+
+		</States>
+	</Device>
+</Devices>
