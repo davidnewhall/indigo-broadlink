@@ -7,11 +7,11 @@
 import json
 import time
 import indigo
-import broadlink
+from broadlink import broadlink
 
 # Magic broadlink device ID for a RM Pro+
-RM_PRO_PLUS_DEV = "0x2712"
-
+#RM_PRO_PLUS_DEV = "0x2712"
+#RM_PRO_PLUS_DEV = "0x2737"
 
 class Plugin(indigo.PluginBase):
     """ Indigo Plugin """
@@ -20,6 +20,7 @@ class Plugin(indigo.PluginBase):
         """ Initialize Plugin. """
         indigo.PluginBase.__init__(self, pid, name, version, prefs)
         self.debug = True
+        
 
     def _discover_device(self, values, type_id, did):
         """ Devices.xml Callback Method to discover a RM Pro device. """
@@ -54,8 +55,9 @@ class Plugin(indigo.PluginBase):
         """ Devices.xml Callback Method to learn a new command. """
         # If an address was provided, use it, otherwise, get it from the props.
         addr = values.get("address", indigo.devices[did].pluginProps.get("address", "127.0.0.1"))
+        model = values.get("model", indigo.devices[did].pluginProps.get("model", "0x2712"))
         # Magic.
-        rm_pro_dev = broadlink.gendevice(int(RM_PRO_PLUS_DEV, 0), (addr, 80), "000000000000")
+        rm_pro_dev = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
         rm_pro_dev.auth()
         rm_pro_dev.enter_learning()
         values['rawCommand'] = "- learn failed -"
@@ -91,6 +93,7 @@ class Plugin(indigo.PluginBase):
         """ Actions.xml Callback: Send a Command. """
         cmd = action.props.get("rawCommand", "")
         addr = dev.pluginProps.get("address", action.props.get("address", ""))
+        model = dev.pluginProps.get("model", action.props.get("model", ""))
         cmd_name = cmd
         if cmd == "" or addr == "":
             return
@@ -100,7 +103,7 @@ class Plugin(indigo.PluginBase):
                 break
         if not dev.pluginProps.get("hideCommandLog", False):
             indigo.server.log(u"RM Pro+, Sending Command to: {} ({}): {}".format(dev.name, addr, cmd_name))
-        rm_pro_dev = broadlink.gendevice(int(RM_PRO_PLUS_DEV, 0), (addr, 80), "000000000000")
+        rm_pro_dev = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
         rm_pro_dev.auth()
         data = bytearray.fromhex(''.join(cmd))
         rm_pro_dev.send_data(data)
