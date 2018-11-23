@@ -10,8 +10,10 @@ import indigo
 from broadlink import broadlink
 
 # Magic broadlink device IDs
-# RM Pro+ => "0x2712"
-# RM Mini => "0x2737"
+MODELS = {
+    "0x2712": "RM Pro+",
+    "0x2737": "RM Mini",
+}
 
 
 class Plugin(indigo.PluginBase):
@@ -26,6 +28,9 @@ class Plugin(indigo.PluginBase):
         """ Devices.xml Callback Method to discover a Broadlink device. """
         devices = broadlink.discover(timeout=9)
         values["address"] = "- discovery failed -"
+        dev = indigo.devices[did]
+        if dev.pluginProps.get("logChanges", True):
+            indigo.server.log(u"Discovering Devices.")
         for device in devices:
             values["address"] = "- dev err {} -".format(device.host)
             if device.auth():
@@ -80,23 +85,22 @@ class Plugin(indigo.PluginBase):
         dev.updateStateOnServer("commandCounter", 0)
         if dev.pluginProps.get("logChanges", True):
             indigo.server.log(u"{0}, Reset Command Counter for {1} ({2})"
-                              .format(model, dev.name, addr))
+                              .format(MODELS[model], dev.name, addr))
         return
 
     def _save_new_command(self, values, type_id, did):
         """ Devices.xml Callback Method to add a new command. """
         if values["commandName"] and values["rawCommand"]:
             dev = indigo.devices[did]
-            addr = dev.pluginProps.get("address", "")
-            model = dev.pluginProps.get("model", "")
+            model = dev.pluginProps.get("model", "broadlink")
             props = dev.pluginProps
             saved_cmds = json.loads(props.get("commands", "[]"))
             saved_cmds.append((values["rawCommand"], values["commandName"]))
             props["commands"] = json.dumps(saved_cmds)
             dev.replacePluginPropsOnServer(props)
             if dev.pluginProps.get("logChanges", True):
-                indigo.server.log(u"{0}, Saved New Command for {1} ({2}): {3}"
-                                  .format(model, dev.name, addr, values["commandName"]))
+                indigo.server.log(u"{0}, Saved New Command for {1}: {3}"
+                                  .format(MODELS[model], dev.name, values["commandName"]))
             values["commands"] = props["commands"]
             values["commandName"], values["rawCommand"] = "", ""
         return values
@@ -115,7 +119,7 @@ class Plugin(indigo.PluginBase):
                 break
         if dev.pluginProps.get("logChanges", True):
             indigo.server.log(u"{0}, Sending Command to: {1} ({2}): {3}"
-                              .format(model, dev.name, addr, cmd_name))
+                              .format(MODELS[model], dev.name, addr, cmd_name))
         bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
         bl_device.auth()
         data = bytearray.fromhex(''.join(cmd))
