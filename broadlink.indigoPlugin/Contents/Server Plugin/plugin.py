@@ -9,18 +9,18 @@ import time
 import indigo
 from broadlink import broadlink
 
-# Magic broadlink device ID for a RM Pro+
-#RM_PRO_PLUS_DEV = "0x2712"
-#RM_PRO_PLUS_DEV = "0x2737"
+# Magic broadlink device IDs
+# RM Pro+ => "0x2712"
+# RM Mini => "0x2737"
+
 
 class Plugin(indigo.PluginBase):
-    """ Indigo Plugin """
+    """ Indigo Plugin Class for Broadlink Devices """
 
     def __init__(self, pid, name, version, prefs):
         """ Initialize Plugin. """
         indigo.PluginBase.__init__(self, pid, name, version, prefs)
         self.debug = True
-        
 
     def _discover_device(self, values, type_id, did):
         """ Devices.xml Callback Method to discover a Broadlink device. """
@@ -59,36 +59,46 @@ class Plugin(indigo.PluginBase):
         addr = values.get("address", indigo.devices[did].pluginProps.get("address", "127.0.0.1"))
         model = values.get("model", indigo.devices[did].pluginProps.get("model", "0x2712"))
         # Magic.
-        rm_pro_dev = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
-        rm_pro_dev.auth()
-        rm_pro_dev.enter_learning()
+        bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
+        bl_device.auth()
+        bl_device.enter_learning()
         values['rawCommand'] = "- learn failed -"
         timeout = 9
         data = None
         while data is None and timeout > 0:
             time.sleep(2)
             timeout -= 2
-            data = rm_pro_dev.check_data()
+            data = bl_device.check_data()
         if data:
             values['rawCommand'] = ''.join(format(x, '02x') for x in bytearray(data))
         return values
 
     def _reset_command_counter(self, action, dev):
         """ Set the command count for a device back to zero. """
+        addr = dev.pluginProps.get("address", action.props.get("address", ""))
+        model = dev.pluginProps.get("model", action.props.get("model", ""))
         dev.updateStateOnServer("commandCounter", 0)
+        if dev.pluginProps.get("logChanges", True):
+            indigo.server.log(u"{0}, Reset Command Counter for {1} ({2})"
+                              .format(model, dev.name, addr))
         return
 
     def _save_new_command(self, values, type_id, did):
         """ Devices.xml Callback Method to add a new command. """
         if values["commandName"] and values["rawCommand"]:
             dev = indigo.devices[did]
+            addr = dev.pluginProps.get("address", "")
+            model = dev.pluginProps.get("model", "")
             props = dev.pluginProps
             saved_cmds = json.loads(props.get("commands", "[]"))
             saved_cmds.append((values["rawCommand"], values["commandName"]))
             props["commands"] = json.dumps(saved_cmds)
+            dev.replacePluginPropsOnServer(props)
+            if dev.pluginProps.get("logChanges", True):
+                indigo.server.log(u"{0}, Saved New Command for {1} ({2}): {3}"
+                                  .format(model, dev.name, addr, values["commandName"]))
             values["commands"] = props["commands"]
             values["commandName"], values["rawCommand"] = "", ""
-            dev.replacePluginPropsOnServer(props)
         return values
 
     def _send_command(self, action, dev):
@@ -103,19 +113,13 @@ class Plugin(indigo.PluginBase):
             if raw_cmd == cmd:
                 cmd_name = _name
                 break
-<<<<<<< HEAD
-        if not dev.pluginProps.get("hideCommandLog", False):
-            indigo.server.log(u"RM Pro+, Sending Command to: {} ({}): {}".format(dev.name, addr, cmd_name))
-        rm_pro_dev = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
-=======
         if dev.pluginProps.get("logChanges", True):
-            indigo.server.log(u"RM Pro+, Sending Command to: {} ({}): {}"
-                              .format(dev.name, addr, cmd_name))
-        rm_pro_dev = broadlink.gendevice(int(RM_PRO_PLUS_DEV, 0), (addr, 80), "000000000000")
->>>>>>> Minor doc/string updates.
-        rm_pro_dev.auth()
+            indigo.server.log(u"{0}, Sending Command to: {1} ({2}): {3}"
+                              .format(model, dev.name, addr, cmd_name))
+        bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
+        bl_device.auth()
         data = bytearray.fromhex(''.join(cmd))
-        rm_pro_dev.send_data(data)
+        bl_device.send_data(data)
         dev.updateStateOnServer("commandCounter", dev.states.get("commandCounter", 0) + 1)
         if cmd_name == raw_cmd:
             dev.updateStateOnServer("lastRawCommand", raw_cmd)

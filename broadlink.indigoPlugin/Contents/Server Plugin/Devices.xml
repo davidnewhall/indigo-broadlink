@@ -8,10 +8,10 @@
                 <Label>Model:</Label>
                 <List>
                     <Option value="0x2712">RM2 / RM Pro Plus</Option>
-                    <Option value="0x2737">RM Mini</Option>
+                    <Option value="0x2737">RM3 Mini</Option>
                 </List>
             </Field>
-            
+
 			<Field id="address" type="textfield" defaultValue="192.168.1.199">
 				<Label>IP Address:</Label>
 			</Field>
