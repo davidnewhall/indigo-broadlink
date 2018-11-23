@@ -2,10 +2,18 @@
 <Devices>
 
 	<Device type="custom" id="rmProPlusDevice">
-		<Name>RM Pro+</Name>
+		<Name>RM Universal Remote</Name>
 		<ConfigUI>
+			<Field type="menu" id="model" defaultValue="0x2712" >
+                <Label>Model:</Label>
+                <List>
+                    <Option value="0x2712">RM2 / RM Pro Plus</Option>
+                    <Option value="0x2737">RM Mini</Option>
+                </List>
+            </Field>
+            
 			<Field id="address" type="textfield" defaultValue="192.168.1.199">
-				<Label>RM Pro+ IP Address:</Label>
+				<Label>IP Address:</Label>
 			</Field>
 			<Field id="discoverDevice" type="button">
 				<Title>Discover</Title>
