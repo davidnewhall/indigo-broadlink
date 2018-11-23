@@ -23,11 +23,13 @@ class Plugin(indigo.PluginBase):
         
 
     def _discover_device(self, values, type_id, did):
-        """ Devices.xml Callback Method to discover a RM Pro device. """
+        """ Devices.xml Callback Method to discover a Broadlink device. """
         devices = broadlink.discover(timeout=9)
         values["address"] = "- discovery failed -"
         for device in devices:
-            values["address"] = device.host[0] if device.auth() else "- dev err {} -".format(device.host)
+            values["address"] = "- dev err {} -".format(device.host)
+            if device.auth():
+                values["address"] = device.host[0]
             return values  # only grab the first one.
         return values
 
@@ -101,9 +103,16 @@ class Plugin(indigo.PluginBase):
             if raw_cmd == cmd:
                 cmd_name = _name
                 break
+<<<<<<< HEAD
         if not dev.pluginProps.get("hideCommandLog", False):
             indigo.server.log(u"RM Pro+, Sending Command to: {} ({}): {}".format(dev.name, addr, cmd_name))
         rm_pro_dev = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
+=======
+        if dev.pluginProps.get("logChanges", True):
+            indigo.server.log(u"RM Pro+, Sending Command to: {} ({}): {}"
+                              .format(dev.name, addr, cmd_name))
+        rm_pro_dev = broadlink.gendevice(int(RM_PRO_PLUS_DEV, 0), (addr, 80), "000000000000")
+>>>>>>> Minor doc/string updates.
         rm_pro_dev.auth()
         data = bytearray.fromhex(''.join(cmd))
         rm_pro_dev.send_data(data)

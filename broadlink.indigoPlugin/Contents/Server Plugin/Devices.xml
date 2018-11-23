@@ -57,8 +57,8 @@
 				<CallbackMethod>_save_new_command</CallbackMethod>
 			</Field>
 
-			<Field id="hideCommandLog" type="checkbox">
-				<Label>Hide Commands from Indigo Log?</Label>
+			<Field id="logChanges" type="checkbox" defaultValue="true">
+				<Label>Record Changes to Indigo Log</Label>
 			</Field>
 
 		</ConfigUI>

@@ -2,13 +2,21 @@
 
 This plugin allows you to control the Broadlink RM Pro+ with Indigo.
 If you want to send me more Broadlink devices, I'll add support for them. I
-currently only own a RM Pro+ because oceanplexian purchased it for me and asked
-me to make a plugin.
+currently only own a RM Pro+ because [oceanplexian](https://github.com/oceanplexian)
+purchased it for me and asked me to make a plugin.
+
+## Devices
+
+- [RM Pro+](https://www.amazon.com/Broadlink-RM33-RM-Pro-Automation/dp/B078W1JVYK)
+- [RM3 Mini3](https://www.amazon.com/Broadlink-RM33-RM-Pro-Automation/dp/B078BCMZH6)
+
+## Future
+
+- [A1 Environment Sensors](http://www.ibroadlink.com/a1/)
 
 ## Usage
 
-0. The plugin has one dependency. Install it using Terminal: `sudo easy_install broadlink`
-1. Clone this repo on your Indigo server.
+1. [Download](https://github.com/davidnewhall/indigo-broadlink/archive/master.zip) or clone this repo.
 2. Double-click the included plugin file.
 3. Install and Enable the Plugin.
 4. Add a New Device, Select Broadlink RM Pro+
@@ -22,3 +30,4 @@ me to make a plugin.
 ## License
 
 - [GPLv2](https://www.gnu.org/licenses/gpl-2.0.txt): See [LICENSE](LICENSE) File
+- [broadlink library](https://github.com/mjg59/python-broadlink): [MIT](https://github.com/mjg59/python-broadlink/blob/master/LICENSE)
