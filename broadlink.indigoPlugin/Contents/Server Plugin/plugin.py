@@ -7,7 +7,7 @@
 import json
 import time
 import indigo
-from broadlink import broadlink
+import broadlink
 
 # This dict constant is used to map IDs to a human name.
 MODELS = {
