@@ -1,9 +1,10 @@
 # Indigo Broadlink Plugin
 
-This plugin allows you to control the Broadlink RM Pro+ with Indigo.
-If you want to send me more Broadlink devices, I'll add support for them. I
+This plugin allows you to control the Broadlink IR blaster products with [Indigo](https://www.indigodomo.com/).
+Hit me up if you need help adding support for newer/different devices. I
 currently only own a RM Pro+ because [oceanplexian](https://github.com/oceanplexian)
-purchased it for me and asked me to make a plugin.
+purchased it for me and asked me to make a plugin. Support for the RM3 Mini was added
+by [Colorado Four Wheeler](https://github.com/colorado4wheeler).
 
 ## Devices
 
@@ -13,6 +14,7 @@ purchased it for me and asked me to make a plugin.
 ## Future
 
 - [A1 Environment Sensors](http://www.ibroadlink.com/a1/)
+- [SP2/3 Smart Plugs](http://www.ibroadlink.com/sp3/)
 
 ## Usage
 
@@ -27,7 +29,14 @@ purchased it for me and asked me to make a plugin.
 9. Save.
 10. Use the Commands in Action Groups or Triggers, etc.
 
-## License
+## Licenses
+
+#### This Plugin
 
 - [GPLv2](https://www.gnu.org/licenses/gpl-2.0.txt): See [LICENSE](LICENSE) File
+
+#### Dependencies
+
 - [broadlink library](https://github.com/mjg59/python-broadlink): [MIT](https://github.com/mjg59/python-broadlink/blob/master/LICENSE)
+- [pyaes](https://github.com/ricmoo/pyaes/): [MIT](https://github.com/ricmoo/pyaes/blob/master/LICENSE.txt)
+- [PyCRC](https://github.com/alexbutirskiy/PyCRC): [GPLv3](https://github.com/alexbutirskiy/PyCRC/blob/master/LICENSE)
