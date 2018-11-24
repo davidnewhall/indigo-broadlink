@@ -6,17 +6,20 @@ currently only own a RM Pro+ because [oceanplexian](https://github.com/oceanplex
 purchased it for me and asked me to make a plugin. Support for the RM3 Mini was added
 by [Colorado Four Wheeler](https://github.com/colorado4wheeler).
 
-## Devices
+## Tested Devices
 
 - [RM Pro+](https://www.amazon.com/Broadlink-RM33-RM-Pro-Automation/dp/B078W1JVYK)
 - [RM3 Mini3](https://www.amazon.com/Broadlink-RM33-RM-Pro-Automation/dp/B078BCMZH6)
 
-## Future
+Other IR devices may work. Let me know!
+
+## Future Devices
 
 This plugin does not expose any of the RF capabilities of the RM devices. If you
-would like these features, help me figure it out. I don't have any devices to try.
+would like these features, help me figure it out. I don't have any RF equipment.
 
 Other Broadlink devices I'd like to include in future revisions:
+
 - [A1 Environment Sensors](http://www.ibroadlink.com/a1/)
 - [SP2/3 Smart Plugs](http://www.ibroadlink.com/sp3/)
 
