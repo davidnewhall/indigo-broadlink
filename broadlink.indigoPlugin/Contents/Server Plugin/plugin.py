@@ -1,6 +1,7 @@
 """ Broadlink RM Pro+ Plugin for Indigo.
-    First Release Date: Feb 5, 2018
+    First Release Date: Feb 5, 2018 (v0.2.1)
     Author: David Newhall II
+    Version: 1.0.0 (Nov 23, 2018)
     License: GPLv2
 """
 
@@ -11,7 +12,7 @@ import broadlink
 
 # This dict constant is used to map IDs to a human name.
 MODELS = {
-    # Magic broadlink device IDs
+    # Magic broadlink device IDs (taken from broadlink/__init__.py).
     "0x2712": "RM Pro+",
     "0x2737": "RM Mini",
     "0x273d": "RM Pro Phicomm",
@@ -53,8 +54,7 @@ class Plugin(indigo.PluginBase):
         indigo.PluginBase.__init__(self, pid, name, version, prefs)
         self.debug = True
 
-    @staticmethod
-    def _discover_device(values, type_id, did):
+    def _discover_device(self, values, type_id, did):
         """ Devices.xml Callback Method to discover a Broadlink device. """
         values["address"] = "- discovery failed -"
         try:
@@ -72,30 +72,30 @@ class Plugin(indigo.PluginBase):
             return values  # only grab the first one.
         return values
 
-    @staticmethod
-    def _get_saved_commands_list(dev_filter, values, type_id, did):
+    def _get_saved_commands_list(self, dev_filter, values, type_id, did):
         """ Devices.xml Callback Method to return saved commands for this device. """
         dev = indigo.devices[did]
         if "commands" not in dev.pluginProps:
             return [("none", "- none -")]
         return json.loads(dev.pluginProps["commands"])
 
-    @staticmethod
-    def _delete_saved_commands(values, type_id, did):
+    def _delete_saved_commands(self, values, type_id, did):
         """ Devices.xml Callback Method to delete saved commands. """
         if values["savedCommandList"]:
             dev = indigo.devices[did]
             props = dev.pluginProps
+            model = values.get("model", props.get("model", "0x2712"))
             saved_cmds = json.loads(props.get("commands", "[]"))
-            saved_cmds = [i for i in saved_cmds if i[1] != values["savedCommandList"]]
+            indigo.server.log(u"{0}, Removed command from {1}: {2}"
+                              .format(MODELS[model], dev.name, values["savedCommandList"]))
+            saved_cmds = [i for i in saved_cmds if i[0] != values["savedCommandList"]]
             props["commands"] = json.dumps(saved_cmds)
             dev.replacePluginPropsOnServer(props)
             values["savedCommandList"] = ""
             values["commands"] = props["commands"]
         return values
 
-    @staticmethod
-    def _learn_new_command(values, type_id, did):
+    def _learn_new_command(self, values, type_id, did):
         """ Devices.xml Callback Method to learn a new command. """
         dev = indigo.devices[did]
         # If an address was provided, use it, otherwise, get it from the props.
@@ -121,8 +121,7 @@ class Plugin(indigo.PluginBase):
             values['rawCommand'] = ''.join(format(x, '02x') for x in bytearray(data))
         return values
 
-    @staticmethod
-    def _reset_command_counter(action, dev):
+    def _reset_command_counter(self, action, dev):
         """ Set the command count for a device back to zero. """
         addr = dev.pluginProps.get("address", action.props.get("address", ""))
         model = dev.pluginProps.get("model", action.props.get("model", "0x2712"))
@@ -131,12 +130,11 @@ class Plugin(indigo.PluginBase):
             indigo.server.log(u"{0}, Reset Command Counter for {1} ({2})"
                               .format(MODELS[model], dev.name, addr))
 
-    @staticmethod
-    def _save_new_command(values, type_id, did):
+    def _save_new_command(self, values, type_id, did):
         """ Devices.xml Callback Method to add a new command. """
         if values["commandName"] and values["rawCommand"]:
             dev = indigo.devices[did]
-            model = dev.pluginProps.get("model", "broadlink")
+            model = dev.pluginProps.get("model", "0x2712")
             props = dev.pluginProps
             saved_cmds = json.loads(props.get("commands", "[]"))
             saved_cmds.append((values["rawCommand"], values["commandName"]))
@@ -149,8 +147,7 @@ class Plugin(indigo.PluginBase):
             values["commandName"], values["rawCommand"] = "", ""
         return values
 
-    @staticmethod
-    def _send_command(action, dev):
+    def _send_command(self, action, dev):
         """ Actions.xml Callback: Send a Command. """
         cmd = action.props.get("rawCommand", "")
         addr = dev.pluginProps.get("address", action.props.get("address", ""))
