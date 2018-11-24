@@ -64,6 +64,7 @@
 				<Label>Click Learn Command, then point your remote and press a button.</Label>
 			</Field>
 			<Field id="saveNewCommand" type="button">
+				<Label>Save Learned Command:</Label>
 				<Title>Add Command</Title>
 				<CallbackMethod>_save_new_command</CallbackMethod>
 			</Field>

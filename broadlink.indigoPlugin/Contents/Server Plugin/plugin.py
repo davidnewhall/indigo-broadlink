@@ -86,9 +86,11 @@ class Plugin(indigo.PluginBase):
             props = dev.pluginProps
             model = values.get("model", props.get("model", "0x2712"))
             saved_cmds = json.loads(props.get("commands", "[]"))
-            indigo.server.log(u"{0}, Removed command from {1}: {2}"
-                              .format(MODELS[model], dev.name, values["savedCommandList"]))
-            saved_cmds = [i for i in saved_cmds if i[0] != values["savedCommandList"]]
+            if dev.pluginProps.get("logChanges", True):
+                for i in values["savedCommandList"]:
+                    indigo.server.log(u"{0}, Removed command from {1}: {2}"
+                                      .format(MODELS[model], dev.name, i))
+            saved_cmds = [i for i in saved_cmds if i[0] not in values["savedCommandList"]]
             props["commands"] = json.dumps(saved_cmds)
             dev.replacePluginPropsOnServer(props)
             values["savedCommandList"] = ""
@@ -114,8 +116,8 @@ class Plugin(indigo.PluginBase):
         timeout = 9
         data = None
         while data is None and timeout > 0:
-            time.sleep(2)
-            timeout -= 2
+            time.sleep(1)
+            timeout -= 1
             data = bl_device.check_data()
         if data:
             values['rawCommand'] = ''.join(format(x, '02x') for x in bytearray(data))
@@ -141,7 +143,7 @@ class Plugin(indigo.PluginBase):
             props["commands"] = json.dumps(saved_cmds)
             dev.replacePluginPropsOnServer(props)
             if dev.pluginProps.get("logChanges", True):
-                indigo.server.log(u"{0}, Saved New Command for {1}: {3}"
+                indigo.server.log(u"{0}, Saved New Command for {1}: {2}"
                                   .format(MODELS[model], dev.name, values["commandName"]))
             values["commands"] = props["commands"]
             values["commandName"], values["rawCommand"] = "", ""
@@ -152,7 +154,7 @@ class Plugin(indigo.PluginBase):
         cmd = action.props.get("rawCommand", "")
         addr = dev.pluginProps.get("address", action.props.get("address", ""))
         model = dev.pluginProps.get("model", action.props.get("model", "0x2712"))
-        cmd_name, raw_cmd = cmd, ""
+        cmd_name = cmd
         if cmd == "" or addr == "":
             return
         # Try to match the raw command to a stored name.
@@ -160,9 +162,6 @@ class Plugin(indigo.PluginBase):
             if raw_cmd == cmd:
                 cmd_name = _name
                 break
-        if dev.pluginProps.get("logChanges", True):
-            indigo.server.log(u"{0}, Sending Command to: {1} ({2}): {3}"
-                              .format(MODELS[model], dev.name, addr, cmd_name))
         try:
             bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
             bl_device.auth()
@@ -172,8 +171,13 @@ class Plugin(indigo.PluginBase):
             indigo.server.log(u"{0}, Error connecting to {1} ({2}): {3}"
                               .format(MODELS[model], dev.name, addr, err), isError=True)
             return
+
         dev.updateStateOnServer("commandCounter", dev.states.get("commandCounter", 0) + 1)
-        if cmd_name == raw_cmd:
-            dev.updateStateOnServer("lastRawCommand", raw_cmd)
+        if cmd_name == cmd:
+            dev.updateStateOnServer("lastRawCommand", cmd)
         else:
             dev.updateStateOnServer("lastSavedCommand", cmd_name)
+        if dev.pluginProps.get("logChanges", True):
+            indigo.server.log(u"{0}, Sent {1} Command to: {2} ({3}): {4}"
+                              .format(MODELS[model], "Raw" if cmd_name == cmd else "Saved",
+                                      dev.name, addr, cmd_name))

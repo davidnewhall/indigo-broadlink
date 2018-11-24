@@ -13,6 +13,10 @@ by [Colorado Four Wheeler](https://github.com/colorado4wheeler).
 
 ## Future
 
+This plugin does not expose any of the RF capabilities of the RM devices. If you
+would like these features, help me figure it out. I don't have any devices to try.
+
+Other Broadlink devices I'd like to include in future revisions:
 - [A1 Environment Sensors](http://www.ibroadlink.com/a1/)
 - [SP2/3 Smart Plugs](http://www.ibroadlink.com/sp3/)
 
@@ -22,12 +26,12 @@ by [Colorado Four Wheeler](https://github.com/colorado4wheeler).
 2. Double-click the included plugin file.
 3. Install and Enable the Plugin.
 4. Add a New Device, Select `Broadlink Devices`, then `RM Universal Remote`.
-5. Choose a device type: `RM Pro+`, `RM3 Mini`
-6. Click Discover. If it fails, enter the IP for the RM device manually.
-7. Click Learn Command. Point your remote and press a button.
-8. Give it a name and Click Add Command.
-9. Save.
-10. Use the Commands in Action Groups or Triggers, etc.
+5. Choose a device type: `RM Pro+`, `RM3 Mini`, etc.
+6. Click `Discover`. If it fails, enter the IP for the RM device manually.
+7. Click `Learn Command`. Point your remote and press a button.
+8. Give it a name and Click `Add Command`. << *Important*
+9. Click `Save`.
+10. Use the Commands in Action Groups, Triggers or Schedules.
 
 ## Licenses
 
