@@ -2,7 +2,7 @@
 
 ![Broadlink Plugin Logo](broadlink.png)
 
-This plugin allows you to control the Broadlink IR blaster products with [Indigo](https://www.indigodomo.com/).
+This plugin allows you to control the Broadlink IR blaster and SP Smart Plug products with [Indigo](https://www.indigodomo.com/).
 Hit me up if you need help adding support for newer/different devices. I
 currently only own a RM Pro+ because [oceanplexian](https://github.com/oceanplexian)
 purchased it for me and asked me to make a plugin. Support for the RM3 Mini was added
