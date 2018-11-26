@@ -1,13 +1,19 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
+""" Broadlink Device Discovery Script """
 
 import broadlink
 
 
-print "discovering"
-devices = broadlink.discover(timeout=9)
-print devices
-for device in devices:
-    if device.auth():
-        print device.host[0]
-    else:
-        print "Error authenticating with device : {}".format(device.host)
+def main():
+    """ Discover things. """
+    print("Discovering! please wait a moment...")
+    devices = broadlink.discover(timeout=8)
+    print("Found: {} devices".format(len(devices)))
+
+    for device in devices:
+        print("HEX Type: {} - IP Address: {}".format(hex(device.devtype), device.host[0]))
+        if not device.auth():
+            print("Error communicating with device: {}".format(device.host))
+
+
+main()

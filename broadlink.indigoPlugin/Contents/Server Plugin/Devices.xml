@@ -37,12 +37,12 @@
 			</Field>
 			<Field id="savedCommandList" type="list" rows="5">
 				<Label>Saved Commands:</Label>
-				<List class="self" method="_get_saved_commands_list" dynamicReload="true"/>
+				<List class="self" method="_get_saved_IR_commands_list" dynamicReload="true"/>
 			</Field>
 			<Field id="deleteSavedCommands" type="button">
 				<Label/>
 				<Title>Delete Command(s)</Title>
-				<CallbackMethod>_delete_saved_commands</CallbackMethod>
+				<CallbackMethod>_delete_saved_IR_commands</CallbackMethod>
 			</Field>
 			<Field id="reminder" type="label" fontSize="regular" fontColor="darkgray">
 				<Label>Remember to click Save to keep changes to this list!</Label>
@@ -53,12 +53,12 @@
 			<Field id="commandName" type="textfield">
 				<Label>New Command Name:</Label>
 			</Field>
-			<Field id="rawCommand" type="textfield">
+			<Field id="rawCommand" type="textfield" defaultValue="">
 				<Label>Raw Command:</Label>
 			</Field>
 			<Field id="learnNewCommand" type="button">
 				<Title>Learn Command</Title>
-				<CallbackMethod>_learn_new_command</CallbackMethod>
+				<CallbackMethod>_learn_new_IR_command</CallbackMethod>
 			</Field>
 			<Field id="instructions" type="label" fontSize="regular" fontColor="darkgray">
 				<Label>Click Learn Command, then point your remote and press a button.</Label>
@@ -66,7 +66,7 @@
 			<Field id="saveNewCommand" type="button">
 				<Label>Save Learned Command:</Label>
 				<Title>Add Command</Title>
-				<CallbackMethod>_save_new_command</CallbackMethod>
+				<CallbackMethod>_save_new_IR_command</CallbackMethod>
 			</Field>
 
 			<Field id="logChanges" type="checkbox" defaultValue="true">
@@ -95,5 +95,54 @@
 			</State>
 
 		</States>
+	</Device>
+
+	<Device type="relay" id="spDevice">
+		<Name>Smart Plug (SP2/SP3)</Name>
+		<ConfigUI>
+			<Field type="menu" id="model" defaultValue="0x2711">
+				<Label>Model:</Label>
+				<List>
+					<Option value="0x2711">SP2</Option>
+					<Option value="0x2719">Honeywell SP2</Option>
+					<Option value="0x7919">Honeywell SP2</Option>
+					<Option value="0x271a">Honeywell SP2</Option>
+					<Option value="0x791a">Honeywell SP2</Option>
+					<Option value="0x2720">SPMini</Option>
+					<Option value="0x753e">SP3</Option>
+					<Option value="0x7D00">OEM branded SP3</Option>
+					<Option value="0x947a">SP3S</Option>
+					<Option value="0x9479">SP3S</Option>
+					<Option value="0x2728">SPMini2</Option>
+					<Option value="0x2733">OEM branded SPMini</Option>
+					<Option value="0x273e">OEM branded SPMini</Option>
+					<Option value="0x7530">OEM branded SPMini2</Option>
+					<Option value="0x7918">OEM branded SPMini2</Option>
+					<Option value="0x2736">SPMiniPlus</Option>
+				</List>
+			</Field>
+
+			<Field id="address" type="textfield" defaultValue="192.168.1.199">
+				<Label>IP Address:</Label>
+			</Field>
+			<Field id="discoverDevice" type="button">
+				<Title>Discover</Title>
+				<CallbackMethod>_discover_device</CallbackMethod>
+			</Field>
+			<Field type="separator" id="simpleSeparator0" />
+			<Field id="supportsAllOff" type="checkbox" defaultValue="false">
+				<Label>Respond to All Devices Off</Label>
+			</Field>
+			<Field id="supportsAllLights" type="checkbox" defaultValue="false">
+				<Label>Respond to All Lights On/Off</Label>
+			</Field>
+			<Field type="separator" id="simpleSeparator1" />
+			<Field id="logChanges" type="checkbox" defaultValue="true">
+				<Label>Record Changes to Indigo Log</Label>
+			</Field>
+			<Field id="logActions" type="checkbox" defaultValue="true">
+				<Label>Record Actions to Indigo Log</Label>
+			</Field>
+		</ConfigUI>
 	</Device>
 </Devices>

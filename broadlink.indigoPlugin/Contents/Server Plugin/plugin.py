@@ -57,29 +57,42 @@ class Plugin(indigo.PluginBase):
     def _discover_device(self, values, type_id, did):
         """ Devices.xml Callback Method to discover a Broadlink device. """
         values["address"] = "- discovery failed -"
+        indigo.server.log(u"Discovering Devices. This takes 10 seconds.")
         try:
-            devices = broadlink.discover(timeout=9)
+            devices = broadlink.discover(timeout=int(indigo.activePlugin.pluginPrefs.get("timeout", 8)))
         except Exception as err:
-            indigo.server.log(u"Error Discovering Devices! {1}".format(err), isError=True)
+            indigo.server.log(u"Error Discovering Devices! {0}".format(err), isError=True)
             return values
-        dev = indigo.devices[did]
-        if dev.pluginProps.get("logChanges", True):
-            indigo.server.log(u"Discovering Devices.")
+        values["address"] = "0 discovered, try again!"
+        indigo.server.log((u"{0} Device(s) Discovered! If you did not receive the device " +
+                           "you're looking for, enter the data manually.").format(len(devices)),
+                          isError=(len(devices) > 1 or len(devices) == 0))
+
         for device in devices:
-            values["address"] = "- dev err {} -".format(device.host)
+            values["model"] = hex(device.devtype)
+            values["address"] = "dev err {0}".format(device.host)
+            model_name = MODELS[hex(device.devtype)] if hex(device.devtype) in MODELS else "UNKNOWN"
+            device.timeout = 3
             if device.auth():
                 values["address"] = device.host[0]
-            return values  # only grab the first one.
+            # If there's more than one discovered device, only one is populated
+            # in the UI, but all of them are printed into the log file, in red.
+            indigo.server.log(
+                u"Discovered Device: {0} - type: {1}, IP: {2}, Auth: {3}".format(
+                    model_name, hex(device.devtype), device.host[0],
+                    values["address"] == device.host[0]),
+                isError=(len(devices) > 1))
+        # only grab the last one.
         return values
 
-    def _get_saved_commands_list(self, dev_filter, values, type_id, did):
+    def _get_saved_IR_commands_list(self, dev_filter, values, type_id, did):
         """ Devices.xml Callback Method to return saved commands for this device. """
         dev = indigo.devices[did]
         if "commands" not in dev.pluginProps:
             return [("none", "- none -")]
         return json.loads(dev.pluginProps["commands"])
 
-    def _delete_saved_commands(self, values, type_id, did):
+    def _delete_saved_IR_commands(self, values, type_id, did):
         """ Devices.xml Callback Method to delete saved commands. """
         if values["savedCommandList"]:
             dev = indigo.devices[did]
@@ -97,7 +110,7 @@ class Plugin(indigo.PluginBase):
             values["commands"] = props["commands"]
         return values
 
-    def _learn_new_command(self, values, type_id, did):
+    def _learn_new_IR_command(self, values, type_id, did):
         """ Devices.xml Callback Method to learn a new command. """
         dev = indigo.devices[did]
         # If an address was provided, use it, otherwise, get it from the props.
@@ -113,7 +126,7 @@ class Plugin(indigo.PluginBase):
             indigo.server.log(u"{0}, Error connecting to {1} ({2}): {3}"
                               .format(MODELS[model], dev.name, addr, err), isError=True)
             return values
-        timeout = 9
+        timeout = int(indigo.activePlugin.pluginPrefs.get("timeout", 8))
         data = None
         while data is None and timeout > 0:
             time.sleep(1)
@@ -123,7 +136,7 @@ class Plugin(indigo.PluginBase):
             values['rawCommand'] = ''.join(format(x, '02x') for x in bytearray(data))
         return values
 
-    def _reset_command_counter(self, action, dev):
+    def _reset_IR_command_counter(self, action, dev):
         """ Set the command count for a device back to zero. """
         addr = dev.pluginProps.get("address", action.props.get("address", ""))
         model = dev.pluginProps.get("model", action.props.get("model", "0x2712"))
@@ -132,7 +145,7 @@ class Plugin(indigo.PluginBase):
             indigo.server.log(u"{0}, Reset Command Counter for {1} ({2})"
                               .format(MODELS[model], dev.name, addr))
 
-    def _save_new_command(self, values, type_id, did):
+    def _save_new_IR_command(self, values, type_id, did):
         """ Devices.xml Callback Method to add a new command. """
         if values["commandName"] and values["rawCommand"]:
             dev = indigo.devices[did]
@@ -149,7 +162,7 @@ class Plugin(indigo.PluginBase):
             values["commandName"], values["rawCommand"] = "", ""
         return values
 
-    def _send_command(self, action, dev):
+    def _send_IR_command(self, action, dev):
         """ Actions.xml Callback: Send a Command. """
         cmd = action.props.get("rawCommand", "")
         addr = dev.pluginProps.get("address", action.props.get("address", ""))
@@ -181,3 +194,105 @@ class Plugin(indigo.PluginBase):
             indigo.server.log(u"{0}, Sent {1} Command to: {2} ({3}): {4}"
                               .format(MODELS[model], "Raw" if cmd_name == cmd else "Saved",
                                       dev.name, addr, cmd_name))
+
+    def set_all_device_states(self):
+        """ Updates Indigo with current devices' states. """
+        addrs, devs = set(), set()
+        # Build a list of IPs and devices to poll.
+        for dev in indigo.devices.iter("self"):
+            if dev.enabled and dev.configured and dev.deviceTypeId == "spDevice":
+                addrs.add((dev.pluginProps["address"], dev.pluginProps["model"]))
+                devs.add(dev)
+        for (addr, model) in addrs:
+            try:
+                # Magic.
+                bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
+                bl_device.auth()
+                state = bl_device.check_power()
+            except Exception as err:
+                for dev in devs:
+                    # Update all the sub devices that failed to get queried.
+                    if (dev.pluginProps["address"], dev.pluginProps["model"]) == (addr, model):
+                        dev.setErrorStateOnServer(u"Comm Error: {}".format(err))
+            else:
+                # Match this address back to the device(s) and update the state(s).
+                for dev in devs:
+                    if (dev.pluginProps["address"], dev.pluginProps["model"]) == (addr, model):
+                        if dev.states["onOffState"] != state:
+                            dev.updateStateOnServer("onOffState", state)
+                            if dev.pluginProps.get("logChanges", True):
+                                reply = "On" if state else "Off"
+                                indigo.server.log(u"Device \"{}\" turned {}".format(dev.name, reply))
+
+    def update_device_states(self, dev):
+        """ Used to update a single device's state(s).
+            Currently only captures on/off power state.
+        """
+        addr = dev.pluginProps.get("address", "")
+        model = dev.pluginProps.get("model", "0x2712")
+        try:
+            # Magic.
+            bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
+            bl_device.auth()
+            state = bl_device.check_power()
+        except Exception as err:
+            dev.setErrorStateOnServer(u"Comm Error: {}".format(err))
+            indigo.server.log(u"{0}, Error connecting to {1} ({2}): {3}"
+                              .format(MODELS[model], dev.name, addr, err), isError=True)
+        else:
+            if dev.pluginProps.get("logActions", True):
+                indigo.server.log(u"Updated \"{0}\" on:{1} -> on:{2}"
+                                  .format(dev.name, dev.states["onOffState"], state))
+            dev.updateStateOnServer("onOffState", state)
+
+    def runConcurrentThread(self):
+        """ Poll all configured devices (that support state changes).
+            All devices are polled sequentially at the same interval.
+            If you have a lot of devices, this might suck. Need to look into alternatives.
+        """
+        try:
+            while True:
+                self.set_all_device_states()
+                self.sleep(int(indigo.activePlugin.pluginPrefs.get("interval", 30)))
+        except self.StopThread:
+            pass
+
+    def actionControlDevice(self, action, dev):
+        """ Callback Method to Control a SP Device. """
+        if action.deviceAction in [indigo.kUniversalAction.RequestStatus,
+                                   indigo.kUniversalAction.EnergyUpdate]:
+            self.update_device_states(dev)
+        addr = dev.pluginProps.get("address", "")
+        model = dev.pluginProps.get("model", "0x2711")
+        try:
+            # Magic.
+            bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
+            bl_device.auth()
+        except Exception as err:
+            indigo.server.log(u"{0}, Error connecting to {1} ({2}): {3}"
+                              .format(MODELS[model], dev.name, addr, err), isError=True)
+            return
+        control_device = False
+        if action.deviceAction == indigo.kDeviceAction.TurnOn:
+            power_state, reply, control_device = True, "On", True
+        elif action.deviceAction == indigo.kDeviceAction.TurnOff:
+            power_state, reply, control_device = False, "Off", True
+        elif action.deviceAction == indigo.kDeviceAction.Toggle:
+            # Get current state from device before toggling.
+            power_state = not bl_device.check_power()
+            reply = "On" if power_state else "Off"
+            control_device = True
+        elif action.deviceAction == indigo.kDeviceAction.AllLightsOff:
+            if dev.pluginProps.get("supportsAllLights", False):
+                power_state, reply, control_device = False, "Off", True
+            if dev.pluginProps.get("supportsAllLights", False):
+                power_state, reply, control_device = True, "On", True
+        elif action.deviceAction == indigo.kDeviceAction.AllOff:
+            if dev.pluginProps.get("supportsAllOff", False):
+                power_state, reply, control_device = False, "Off", True
+
+        if control_device:
+            bl_device.set_power(power_state)
+            dev.updateStateOnServer("onOffState", power_state)
+            if dev.pluginProps.get("logActions", True):
+                indigo.server.log(u"Sent \"{0}\" {1}".format(dev.name, reply))

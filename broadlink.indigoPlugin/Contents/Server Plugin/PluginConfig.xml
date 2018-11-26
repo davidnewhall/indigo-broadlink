@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<PluginConfig>
+	<SupportURL>https://github.com/davidnewhall/indigo-broadlink/</SupportURL>
+
+	<Field type="menu" id="interval" defaultValue="30">
+		<Label>Update Interval:</Label>
+		<List>
+			<Option value="2">2 seconds</Option>
+			<Option value="5">5 seconds</Option>
+			<Option value="15">15 seconds</Option>
+			<Option value="30">30 seconds</Option>
+			<Option value="60">1 minute</Option>
+			<Option value="90">1.5 minutes</Option>
+			<Option value="120">2 minutes</Option>
+		</List>
+	</Field>
+
+	<Field id="instructions0" type="label" fontSize="regular" fontColor="darkgray">
+		<Label>Set this to a longer interval if you have many pollable devices.</Label>
+	</Field>
+
+	<Field type="menu" id="timeout" defaultValue="8">
+		<Label>Request Timeout:</Label>
+		<List>
+			<Option value="3">3 seconds</Option>
+			<Option value="4">4 seconds</Option>
+			<Option value="6">6 seconds</Option>
+			<Option value="8">8 seconds</Option>
+			<Option value="9">9 seconds</Option>
+			<Option value="10">10 seconds</Option>
+			<Option value="15">15 seconds</Option>
+		</List>
+	</Field>
+	<Field id="instructions1" type="label" fontSize="regular" fontColor="darkgray">
+		<Label>A timeout of 6-10 seconds works well.</Label>
+	</Field>
+</PluginConfig>
