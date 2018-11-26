@@ -213,7 +213,10 @@ class Plugin(indigo.PluginBase):
                 for dev in devs:
                     # Update all the sub devices that failed to get queried.
                     if (dev.pluginProps["address"], dev.pluginProps["model"]) == (addr, model):
-                        dev.setErrorStateOnServer(u"Comm Error: {}".format(err))
+                        dev.setErrorStateOnServer(u"Comm Error: {} -> {}".format(addr, err))
+                        if indigo.activePlugin.pluginPrefs.get("logUpdateErrors", True):
+                            indigo.server.log(u"{0}, Error communicating with {1} ({2}): {3}"
+                                              .format(MODELS[model], dev.name, addr, err), isError=True)
             else:
                 # Match this address back to the device(s) and update the state(s).
                 for dev in devs:

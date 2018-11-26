@@ -34,4 +34,11 @@
 	<Field id="instructions1" type="label" fontSize="regular" fontColor="darkgray">
 		<Label>A timeout of 6-10 seconds works well.</Label>
 	</Field>
+	<Field type="separator" id="simpleSeparator1" />
+	<Field id="logUpdateErrors" type="checkbox" defaultValue="true">
+		<Label>Record Update Errors to Indigo Log</Label>
+	</Field>
+	<Field id="instructions2" type="label" fontSize="regular" fontColor="darkgray">
+		<Label>Turn this off if you disconnect devices to avoid cluttering your log with expected errors.</Label>
+	</Field>
 </PluginConfig>
