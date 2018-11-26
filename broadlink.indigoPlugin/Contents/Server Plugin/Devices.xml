@@ -37,12 +37,12 @@
 			</Field>
 			<Field id="savedCommandList" type="list" rows="5">
 				<Label>Saved Commands:</Label>
-				<List class="self" method="_get_saved_commands_list" dynamicReload="true"/>
+				<List class="self" method="_get_saved_IR_commands_list" dynamicReload="true"/>
 			</Field>
 			<Field id="deleteSavedCommands" type="button">
 				<Label/>
 				<Title>Delete Command(s)</Title>
-				<CallbackMethod>_delete_saved_commands</CallbackMethod>
+				<CallbackMethod>_delete_saved_IR_commands</CallbackMethod>
 			</Field>
 			<Field id="reminder" type="label" fontSize="regular" fontColor="darkgray">
 				<Label>Remember to click Save to keep changes to this list!</Label>
@@ -53,12 +53,12 @@
 			<Field id="commandName" type="textfield">
 				<Label>New Command Name:</Label>
 			</Field>
-			<Field id="rawCommand" type="textfield">
+			<Field id="rawCommand" type="textfield" defaultValue="">
 				<Label>Raw Command:</Label>
 			</Field>
 			<Field id="learnNewCommand" type="button">
 				<Title>Learn Command</Title>
-				<CallbackMethod>_learn_new_command</CallbackMethod>
+				<CallbackMethod>_learn_new_IR_command</CallbackMethod>
 			</Field>
 			<Field id="instructions" type="label" fontSize="regular" fontColor="darkgray">
 				<Label>Click Learn Command, then point your remote and press a button.</Label>
@@ -66,7 +66,7 @@
 			<Field id="saveNewCommand" type="button">
 				<Label>Save Learned Command:</Label>
 				<Title>Add Command</Title>
-				<CallbackMethod>_save_new_command</CallbackMethod>
+				<CallbackMethod>_save_new_IR_command</CallbackMethod>
 			</Field>
 
 			<Field id="logChanges" type="checkbox" defaultValue="true">

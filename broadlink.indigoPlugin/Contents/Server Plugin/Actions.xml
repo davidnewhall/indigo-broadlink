@@ -3,32 +3,32 @@
 
 	<Action id="sendRawCommand" deviceFilter="self">
 		<Name>Send Raw Command</Name>
-		<CallbackMethod>_send_command</CallbackMethod>
+		<CallbackMethod>_send_IR_command</CallbackMethod>
 		<ConfigUI>
 			<Field id="rawCommand" type="textfield">
 				<Label>Raw Command:</Label>
 			</Field>
 			<Field id="learnNewCommand" type="button">
 				<Title>Learn</Title>
-				<CallbackMethod>_learn_new_command</CallbackMethod>
+				<CallbackMethod>_learn_new_IR_command</CallbackMethod>
 			</Field>
 		</ConfigUI>
 	</Action>
 
 	<Action id="sendSavedCommand" deviceFilter="self">
 		<Name>Send Saved Command</Name>
-		<CallbackMethod>_send_command</CallbackMethod>
+		<CallbackMethod>_send_IR_command</CallbackMethod>
 		<ConfigUI>
 			<Field id="rawCommand" type="menu">
 				<Label>Saved Command:</Label>
-				<List class="self" method="_get_saved_commands_list" />
+				<List class="self" method="_get_saved_IR_commands_list" />
 			</Field>
 		</ConfigUI>
 	</Action>
 
 	<Action id="resetCommandCounter" deviceFilter="self">
 		<Name>Reset Command Counter</Name>
-		<CallbackMethod>_reset_command_counter</CallbackMethod>
+		<CallbackMethod>_reset_IR_command_counter</CallbackMethod>
 	</Action>
 
 </Actions>
