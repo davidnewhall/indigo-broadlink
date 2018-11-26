@@ -12,31 +12,45 @@ by [Colorado Four Wheeler](https://github.com/colorado4wheeler).
 
 - [RM Pro+](https://www.amazon.com/Broadlink-RM33-RM-Pro-Automation/dp/B078W1JVYK)
 - [RM3 Mini3](https://www.amazon.com/Broadlink-RM33-RM-Pro-Automation/dp/B078BCMZH6)
+- [SP3 Smart Plug](https://www.amazon.com/BroadLink-Required-Control-Occupies-Assistant/dp/B01FDGO948)
 
-Other IR devices may work. Let me know!
+Other IR and SP devices may work. Let me know!
 
 ## Future Devices
 
-This plugin does not expose any of the RF capabilities of the RM devices. If you
-would like these features, help me figure it out. I don't have any RF equipment.
+**This plugin does not expose any of the RF capabilities of the RM devices.** *If you
+would like these features, help me figure it out. I don't have any RF equipment.*
+
+*This plugin does not expose the energy reading capabilities of the SP3S. I hope
+to have an SP3S soon to test with.*
 
 Other Broadlink devices I'd like to include in future revisions:
 
 - [A1 Environment Sensors](http://www.ibroadlink.com/a1/)
-- [SP2/3 Smart Plugs](http://www.ibroadlink.com/sp3/)
+
+Let me know if you'd like others!
 
 ## Usage
 
 1. [Download the latest release](https://github.com/davidnewhall/indigo-broadlink/archive/latest.zip) or clone this repo.
-2. Double-click the included plugin file.
-3. Install and Enable the Plugin.
-4. Add a New Device, Select `Broadlink Devices`, then `RM Universal Remote`.
-5. Choose a device type: `RM Pro+`, `RM3 Mini`, etc.
-6. Click `Discover`. If it fails, enter the IP for the RM device manually.
-7. Click `Learn Command`. Point your remote and press a button.
-8. Give it a name and Click `Add Command`. << *Important*
-9. Click `Save`.
-10. Use the Commands in Action Groups, Triggers or Schedules.
+1. Double-click the included plugin file.
+1. Install and Enable the Plugin.
+1. Add a New Device, Select `Broadlink Devices`, then `RM Universal Remote` or `Smart Plug`.
+1. Click `Discover`. If it fails, enter the `IP` and `Model` for the device manually.
+    - Check Indigo server logs after discovery for discovery details.
+
+#### RM Universal Remote
+
+1. Click `Learn Command`. Point your remote and press a button.
+1. Give it a name and Click `Add Command`. << *Important*
+1. Click `Save`.
+1. Use the Commands in Action Groups, Triggers or Schedules.
+
+#### Smart Plugs
+
+These devices have no special states. Select an update interval in the plugin
+configuration; this ensures local state changes are reported as expected.
+Control these devices with On/Off commands as you would any other relay device.
 
 ## Licenses
 
