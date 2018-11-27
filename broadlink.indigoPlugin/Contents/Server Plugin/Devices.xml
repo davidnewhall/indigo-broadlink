@@ -8,22 +8,7 @@
 			</Field>
 			<Field type="menu" id="model" defaultValue="0x2712" >
 				<Label>Model:</Label>
-				<List>
-					<Option value="0x2712">RM Pro Plus</Option>
-					<Option value="0x2737">RM3 Mini</Option>
-					<Option value="0x273d">RM Pro Phicomm</Option>
-					<Option value="0x2783">RM2 Home Plus</Option>
-					<Option value="0x277c">RM2 Home Plus GDT</Option>
-					<Option value="0x272a">RM2 Pro Plus</Option>
-					<Option value="0x2787">RM2 Pro Plus2</Option>
-					<Option value="0x279d">RM2 Pro Plus3</Option>
-					<Option value="0x27a9">RM2 Pro Plus_300</Option>
-					<Option value="0x278b">RM2 Pro Plus BL</Option>
-					<Option value="0x2797">RM2 Pro Plus HYC</Option>
-					<Option value="0x27a1">RM2 Pro Plus R1</Option>
-					<Option value="0x27a6">RM2 Pro PP</Option>
-					<Option value="0x278f">RM Mini Shate</Option>
-				</List>
+				<List class="self" method="_list_known_devices" filter="IR" dynamicReload="false"/>
 			</Field>
 
 			<Field id="address" type="textfield" defaultValue="192.168.1.199">
@@ -108,24 +93,7 @@
 			</Field>
 			<Field type="menu" id="model" defaultValue="0x2711">
 				<Label>Model:</Label>
-				<List>
-					<Option value="0x2711">SP2</Option>
-					<Option value="0x2719">Honeywell SP2</Option>
-					<Option value="0x7919">Honeywell SP2</Option>
-					<Option value="0x271a">Honeywell SP2</Option>
-					<Option value="0x791a">Honeywell SP2</Option>
-					<Option value="0x2720">SPMini</Option>
-					<Option value="0x753e">SP3</Option>
-					<Option value="0x7D00">OEM branded SP3</Option>
-					<Option value="0x947a">SP3S</Option>
-					<Option value="0x9479">SP3S</Option>
-					<Option value="0x2728">SPMini2</Option>
-					<Option value="0x2733">OEM branded SPMini</Option>
-					<Option value="0x273e">OEM branded SPMini</Option>
-					<Option value="0x7530">OEM branded SPMini2</Option>
-					<Option value="0x7918">OEM branded SPMini2</Option>
-					<Option value="0x2736">SPMiniPlus</Option>
-				</List>
+				<List class="self" method="_list_known_devices" filter="SP" dynamicReload="false"/>
 			</Field>
 
 			<Field id="address" type="textfield" defaultValue="192.168.1.199">

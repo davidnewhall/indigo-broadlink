@@ -61,6 +61,9 @@ class Plugin(indigo.PluginBase):
         indigo.PluginBase.__init__(self, pid, name, version, prefs)
         self.debug = True
 
+    def _list_known_devices(self, filter, values, typeId, targetId):
+        return MODELS[filter].items()
+
     def _discover_device(self, values, type_id, did):
         """ Devices.xml Callback Method to discover a Broadlink device. """
         # When discovering, avoid reporting IPs belonging to established devices.
