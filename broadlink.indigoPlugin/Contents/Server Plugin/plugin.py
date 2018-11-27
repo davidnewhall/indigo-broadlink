@@ -190,13 +190,27 @@ class Plugin(indigo.PluginBase):
             values["commandName"], values["rawCommand"] = "", ""
         return values
 
+    def _test_IR_command(self, values, type_id, did):
+        """ Devices.xml Callback Method to test a command. """
+        dev = indigo.devices[did]
+        props = dev.pluginProps
+        addr = values.get("address", props.get("address", ""))
+        model = values.get("model", props.get("model", "0x2712"))
+        cat = values.get("category", props.get("category", "IR"))
+        for cmd in values["savedCommandList"]:
+            self.send_IR_command(cmd, addr, model, cat, dev)
+            time.sleep(0.4)
+        return values
+
     def _send_IR_command(self, action, dev):
         """ Actions.xml Callback: Send a Command. """
-        cmd = action.props.get("rawCommand", "")
         addr = dev.pluginProps.get("address", action.props.get("address", ""))
         model = dev.pluginProps.get("model", action.props.get("model", "0x2712"))
         cat = dev.pluginProps.get("category", action.props.get("category", "IR"))
+        self.send_IR_command(action.props.get("rawCommand", ""), addr, model, cat, dev)
 
+    def send_IR_command(self, cmd, addr, model, cat, dev):
+        """ Connects to IR device and distributes IR command. """
         cmd_name = cmd
         if cmd == "" or addr == "":
             return

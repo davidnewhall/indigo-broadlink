@@ -15,6 +15,7 @@
 				<Label>IP Address:</Label>
 			</Field>
 			<Field id="discoverDevice" type="button">
+				<Label>Start Here:</Label>
 				<Title>Discover</Title>
 				<CallbackMethod>_discover_device</CallbackMethod>
 			</Field>
@@ -28,10 +29,16 @@
 				<List class="self" method="_get_saved_IR_commands_list" dynamicReload="true"/>
 			</Field>
 			<Field id="deleteSavedCommands" type="button">
-				<Label/>
-				<Title>Delete Command(s)</Title>
+				<Label>Remove Selected Commands:</Label>
+				<Title>Delete Commands</Title>
 				<CallbackMethod>_delete_saved_IR_commands</CallbackMethod>
 			</Field>
+			<Field id="testSavedCommands" type="button">
+				<Label>Test Selected Commands:</Label>
+				<Title>Test Commands</Title>
+				<CallbackMethod>_test_IR_command</CallbackMethod>
+			</Field>
+
 			<Field id="reminder" type="label" fontSize="regular" fontColor="darkgray">
 				<Label>Remember to click Save to keep changes to this list!</Label>
 			</Field>
