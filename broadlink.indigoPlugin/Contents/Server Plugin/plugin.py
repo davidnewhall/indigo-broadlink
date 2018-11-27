@@ -11,6 +11,7 @@ import indigo
 import broadlink
 
 # This dict constant is used to map IDs to a human name.
+# It is also used to populate the UI model-selection list.
 MODELS = {
     # Magic broadlink device IDs (taken from broadlink/__init__.py).
     "IR": {
@@ -62,6 +63,7 @@ class Plugin(indigo.PluginBase):
         self.debug = True
 
     def _list_known_devices(self, filter, values, typeId, targetId):
+        """ Devices.xml callback to populate the UI model-selection list. """
         return MODELS[filter].items()
 
     def _discover_device(self, values, type_id, did):
@@ -86,12 +88,13 @@ class Plugin(indigo.PluginBase):
             values["model"] = hex(device.devtype)
             values["address"] = "dev err {0}".format(device.host)
             model_name, model_cat = "UNKNOWN", "UNKNOWN"
+            # Attempt to match model and category for each discovered device.
             for cat in MODELS:
                 if values["model"] in MODELS[cat]:
                     model_name = MODELS[cat][values["model"]]
                     model_cat = cat
                     break
-            device.timeout = 3
+            device.timeout = indigo.activePlugin.pluginPrefs.get("timeout", 8)
             if device.auth():
                 values["address"] = device.host[0]
             # If there's more than one discovered device, only one is populated
@@ -221,6 +224,7 @@ class Plugin(indigo.PluginBase):
                 break
         try:
             bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
+            bl_device.timeout = indigo.activePlugin.pluginPrefs.get("timeout", 8)
             bl_device.auth()
             data = bytearray.fromhex(''.join(cmd))
             bl_device.send_data(data)
@@ -245,12 +249,15 @@ class Plugin(indigo.PluginBase):
         # Build a list of IPs and devices to poll.
         for dev in indigo.devices.iter("self"):
             if dev.enabled and dev.configured and dev.deviceTypeId == "spDevice":
-                addrs.add((dev.pluginProps["address"], dev.pluginProps.get("model", "0x2712"), dev.pluginProps.get("category", "IR")))
+                addrs.add((dev.pluginProps["address"],
+                           dev.pluginProps.get("model", "0x2711"),
+                           dev.pluginProps.get("category", "SP")))
                 devs.add(dev)
         for (addr, model, cat) in addrs:
             try:
                 # Magic.
                 bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
+                bl_device.timeout = indigo.activePlugin.pluginPrefs.get("timeout", 8)
                 bl_device.auth()
                 state = bl_device.check_power()
             except Exception as err:
@@ -260,13 +267,15 @@ class Plugin(indigo.PluginBase):
                         dev.setErrorStateOnServer(u"Comm Error: {} -> {}".format(addr, err))
                         if indigo.activePlugin.pluginPrefs.get("logUpdateErrors", True):
                             indigo.server.log(u"{0}, Error communicating with {1} ({2}): {3}"
-                                              .format(MODELS[cat][model], dev.name, addr, err), isError=True)
+                                              .format(MODELS[cat][model], dev.name, addr, err),
+                                              isError=True)
             else:
                 # Match this address back to the device(s) and update the state(s).
                 for dev in devs:
                     if (dev.pluginProps["address"], dev.pluginProps["model"]) == (addr, model):
                         dev.updateStateOnServer("onOffState", state)
-                        if dev.states["onOffState"] != state and dev.pluginProps.get("logChanges", True):
+                        if (dev.states["onOffState"] != state
+                                and dev.pluginProps.get("logChanges", True)):
                             reply = "On" if state else "Off"
                             indigo.server.log(u"Device \"{}\" turned {}".format(dev.name, reply))
 
@@ -280,6 +289,7 @@ class Plugin(indigo.PluginBase):
         try:
             # Magic.
             bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
+            bl_device.timeout = indigo.activePlugin.pluginPrefs.get("timeout", 8)
             bl_device.auth()
             state = bl_device.check_power()
         except Exception as err:
