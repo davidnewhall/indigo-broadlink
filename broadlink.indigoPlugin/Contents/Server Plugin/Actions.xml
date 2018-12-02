@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <Actions>
 
-	<Action id="sendRawCommand" deviceFilter="self">
-		<Name>Send Raw Command</Name>
+	<Action id="sendRawCommand" deviceFilter="self.rmProPlusDevice" uiPath="DeviceActions">
+		<Name>IR: Send Raw Command</Name>
 		<CallbackMethod>_send_IR_command</CallbackMethod>
 		<ConfigUI>
 			<Field id="rawCommand" type="textfield">
@@ -15,8 +15,8 @@
 		</ConfigUI>
 	</Action>
 
-	<Action id="sendSavedCommand" deviceFilter="self">
-		<Name>Send Saved Command</Name>
+	<Action id="sendSavedCommand" deviceFilter="self.rmProPlusDevice" uiPath="DeviceActions">
+		<Name>IR: Send Saved Command</Name>
 		<CallbackMethod>_send_IR_command</CallbackMethod>
 		<ConfigUI>
 			<Field id="rawCommand" type="menu">
@@ -26,8 +26,8 @@
 		</ConfigUI>
 	</Action>
 
-	<Action id="resetCommandCounter" deviceFilter="self">
-		<Name>Reset Command Counter</Name>
+	<Action id="resetCommandCounter" deviceFilter="self.rmProPlusDevice" uiPath="DeviceActions">
+		<Name>IR: Reset Command Counter</Name>
 		<CallbackMethod>_reset_IR_command_counter</CallbackMethod>
 	</Action>
 

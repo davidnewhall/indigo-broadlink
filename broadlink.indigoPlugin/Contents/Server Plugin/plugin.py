@@ -11,40 +11,48 @@ import indigo
 import broadlink
 
 # This dict constant is used to map IDs to a human name.
+# It is also used to populate the UI model-selection list.
 MODELS = {
     # Magic broadlink device IDs (taken from broadlink/__init__.py).
-    "0x2712": "RM Pro+",
-    "0x2737": "RM Mini",
-    "0x273d": "RM Pro Phicomm",
-    "0x2783": "RM2 Home Plus",
-    "0x277c": "RM2 Home Plus GDT",
-    "0x272a": "RM2 Pro Plus",
-    "0x2787": "RM2 Pro Plus2",
-    "0x279d": "RM2 Pro Plus3",
-    "0x27a9": "RM2 Pro Plus_300",
-    "0x278b": "RM2 Pro Plus BL",
-    "0x2797": "RM2 Pro Plus HYC",
-    "0x27a1": "RM2 Pro Plus R1",
-    "0x27a6": "RM2 Pro PP",
-    "0x278f": "RM Mini Shate",
-    "0x2714": "A1 Environment Sensor",
-    "0x2711": "SP2",
-    "0x2719": "Honeywell SP2",
-    "0x7919": "Honeywell SP2",
-    "0x271a": "Honeywell SP2",
-    "0x791a": "Honeywell SP2",
-    "0x2720": "SPMini",
-    "0x753e": "SP3",
-    "0x7D00": "OEM branded SP3",
-    "0x947a": "SP3S",
-    "0x9479": "SP3S",
-    "0x2728": "SPMini2",
-    "0x2733": "OEM branded SPMini",
-    "0x273e": "OEM branded SPMini",
-    "0x7530": "OEM branded SPMini2",
-    "0x7918": "OEM branded SPMini2",
-    "0x2736": "SPMiniPlus",
+    "IR": {
+        "0x2712": "RM Pro+",
+        "0x2737": "RM Mini",
+        "0x273d": "RM Pro Phicomm",
+        "0x2783": "RM2 Home Plus",
+        "0x277c": "RM2 Home Plus GDT",
+        "0x272a": "RM2 Pro Plus",
+        "0x2787": "RM2 Pro Plus2",
+        "0x279d": "RM2 Pro Plus3",
+        "0x27a9": "RM2 Pro Plus_300",
+        "0x278b": "RM2 Pro Plus BL",
+        "0x2797": "RM2 Pro Plus HYC",
+        "0x27a1": "RM2 Pro Plus R1",
+        "0x27a6": "RM2 Pro PP",
+        "0x278f": "RM Mini Shate",
+    },
+    "ES": {
+        "0x2714": "A1 Environment Sensor",
+    },
+    "SP": {
+        "0x2711": "SP2",
+        "0x2719": "Honeywell SP2",
+        "0x7919": "Honeywell SP2",
+        "0x271a": "Honeywell SP2",
+        "0x791a": "Honeywell SP2",
+        "0x2720": "SPMini",
+        "0x753e": "SP3",
+        "0x7D00": "OEM branded SP3",
+        "0x947a": "SP3S",
+        "0x9479": "SP3S",
+        "0x2728": "SPMini2",
+        "0x2733": "OEM branded SPMini",
+        "0x273e": "OEM branded SPMini",
+        "0x7530": "OEM branded SPMini2",
+        "0x7918": "OEM branded SPMini2",
+        "0x2736": "SPMiniPlus",
+    }
 }
+
 
 class Plugin(indigo.PluginBase):
     """ Indigo Plugin Class for Broadlink Devices """
@@ -54,8 +62,15 @@ class Plugin(indigo.PluginBase):
         indigo.PluginBase.__init__(self, pid, name, version, prefs)
         self.debug = True
 
+    def _list_known_devices(self, filter, values, typeId, targetId):
+        """ Devices.xml callback to populate the UI model-selection list. """
+        return MODELS[filter].items()
+
     def _discover_device(self, values, type_id, did):
         """ Devices.xml Callback Method to discover a Broadlink device. """
+        # When discovering, avoid reporting IPs belonging to established devices.
+        exclude = [d.address for d in indigo.devices.itervalues("self")
+                   if d.address != values["address"]]
         values["address"] = "- discovery failed -"
         indigo.server.log(u"Discovering Devices. This takes 10 seconds.")
         try:
@@ -68,21 +83,33 @@ class Plugin(indigo.PluginBase):
                            "you're looking for, enter the data manually.").format(len(devices)),
                           isError=(len(devices) > 1 or len(devices) == 0))
 
+        return_values = None
         for device in devices:
             values["model"] = hex(device.devtype)
             values["address"] = "dev err {0}".format(device.host)
-            model_name = MODELS[hex(device.devtype)] if hex(device.devtype) in MODELS else "UNKNOWN"
-            device.timeout = 3
+            model_name, model_cat = "UNKNOWN", "UNKNOWN"
+            # Attempt to match model and category for each discovered device.
+            for cat in MODELS:
+                if values["model"] in MODELS[cat]:
+                    model_name = MODELS[cat][values["model"]]
+                    model_cat = cat
+                    break
+            device.timeout = indigo.activePlugin.pluginPrefs.get("timeout", 8)
             if device.auth():
                 values["address"] = device.host[0]
             # If there's more than one discovered device, only one is populated
             # in the UI, but all of them are printed into the log file, in red.
             indigo.server.log(
-                u"Discovered Device: {0} - type: {1}, IP: {2}, Auth: {3}".format(
-                    model_name, hex(device.devtype), device.host[0],
+                u"Discovered Device: {0}|{1} - type: {2}, IP: {3}, Auth: {4}".format(
+                    model_cat, model_name, values["model"], device.host[0],
                     values["address"] == device.host[0]),
                 isError=(len(devices) > 1))
-        # only grab the last one.
+            if values.get("category", model_cat) == model_cat and device.host[0] not in exclude:
+                # If we find a device with a new IP in the same category, use it.
+                return_values = (values["model"], values["address"])
+        # return the special one, or the last one found
+        if return_values is not None:
+            (values["model"], values["address"]) = return_values
         return values
 
     def _get_saved_IR_commands_list(self, dev_filter, values, type_id, did):
@@ -98,11 +125,12 @@ class Plugin(indigo.PluginBase):
             dev = indigo.devices[did]
             props = dev.pluginProps
             model = values.get("model", props.get("model", "0x2712"))
+            cat = values.get("category", props.get("category", "IR"))
             saved_cmds = json.loads(props.get("commands", "[]"))
             if dev.pluginProps.get("logChanges", True):
                 for i in values["savedCommandList"]:
                     indigo.server.log(u"{0}, Removed command from {1}: {2}"
-                                      .format(MODELS[model], dev.name, i))
+                                      .format(MODELS[cat][model], dev.name, i))
             saved_cmds = [i for i in saved_cmds if i[0] not in values["savedCommandList"]]
             props["commands"] = json.dumps(saved_cmds)
             dev.replacePluginPropsOnServer(props)
@@ -116,6 +144,7 @@ class Plugin(indigo.PluginBase):
         # If an address was provided, use it, otherwise, get it from the props.
         addr = values.get("address", dev.pluginProps.get("address", "127.0.0.1"))
         model = values.get("model", dev.pluginProps.get("model", "0x2712"))
+        cat = values.get("category", dev.pluginProps.get("category", "IR"))
         values['rawCommand'] = "- learn failed -"
         try:
             # Magic.
@@ -124,7 +153,7 @@ class Plugin(indigo.PluginBase):
             bl_device.enter_learning()
         except Exception as err:
             indigo.server.log(u"{0}, Error connecting to {1} ({2}): {3}"
-                              .format(MODELS[model], dev.name, addr, err), isError=True)
+                              .format(MODELS[cat][model], dev.name, addr, err), isError=True)
             return values
         timeout = int(indigo.activePlugin.pluginPrefs.get("timeout", 8))
         data = None
@@ -140,16 +169,18 @@ class Plugin(indigo.PluginBase):
         """ Set the command count for a device back to zero. """
         addr = dev.pluginProps.get("address", action.props.get("address", ""))
         model = dev.pluginProps.get("model", action.props.get("model", "0x2712"))
+        cat = dev.pluginProps.get("category", action.props.get("category", "IR"))
         dev.updateStateOnServer("commandCounter", 0)
         if dev.pluginProps.get("logChanges", True):
             indigo.server.log(u"{0}, Reset Command Counter for {1} ({2})"
-                              .format(MODELS[model], dev.name, addr))
+                              .format(MODELS[cat][model], dev.name, addr))
 
     def _save_new_IR_command(self, values, type_id, did):
         """ Devices.xml Callback Method to add a new command. """
         if values["commandName"] and values["rawCommand"]:
             dev = indigo.devices[did]
             model = dev.pluginProps.get("model", "0x2712")
+            cat = dev.pluginProps.get("category", "IR")
             props = dev.pluginProps
             saved_cmds = json.loads(props.get("commands", "[]"))
             saved_cmds.append((values["rawCommand"], values["commandName"]))
@@ -157,16 +188,32 @@ class Plugin(indigo.PluginBase):
             dev.replacePluginPropsOnServer(props)
             if dev.pluginProps.get("logChanges", True):
                 indigo.server.log(u"{0}, Saved New Command for {1}: {2}"
-                                  .format(MODELS[model], dev.name, values["commandName"]))
+                                  .format(MODELS[cat][model], dev.name, values["commandName"]))
             values["commands"] = props["commands"]
             values["commandName"], values["rawCommand"] = "", ""
         return values
 
+    def _test_IR_command(self, values, type_id, did):
+        """ Devices.xml Callback Method to test a command. """
+        dev = indigo.devices[did]
+        props = dev.pluginProps
+        addr = values.get("address", props.get("address", ""))
+        model = values.get("model", props.get("model", "0x2712"))
+        cat = values.get("category", props.get("category", "IR"))
+        for cmd in values["savedCommandList"]:
+            self.send_IR_command(cmd, addr, model, cat, dev)
+            time.sleep(0.4)
+        return values
+
     def _send_IR_command(self, action, dev):
         """ Actions.xml Callback: Send a Command. """
-        cmd = action.props.get("rawCommand", "")
         addr = dev.pluginProps.get("address", action.props.get("address", ""))
         model = dev.pluginProps.get("model", action.props.get("model", "0x2712"))
+        cat = dev.pluginProps.get("category", action.props.get("category", "IR"))
+        self.send_IR_command(action.props.get("rawCommand", ""), addr, model, cat, dev)
+
+    def send_IR_command(self, cmd, addr, model, cat, dev):
+        """ Connects to IR device and distributes IR command. """
         cmd_name = cmd
         if cmd == "" or addr == "":
             return
@@ -177,12 +224,13 @@ class Plugin(indigo.PluginBase):
                 break
         try:
             bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
+            bl_device.timeout = indigo.activePlugin.pluginPrefs.get("timeout", 8)
             bl_device.auth()
             data = bytearray.fromhex(''.join(cmd))
             bl_device.send_data(data)
         except Exception as err:
             indigo.server.log(u"{0}, Error connecting to {1} ({2}): {3}"
-                              .format(MODELS[model], dev.name, addr, err), isError=True)
+                              .format(MODELS[cat][model], dev.name, addr, err), isError=True)
             return
 
         dev.updateStateOnServer("commandCounter", dev.states.get("commandCounter", 0) + 1)
@@ -192,7 +240,7 @@ class Plugin(indigo.PluginBase):
             dev.updateStateOnServer("lastSavedCommand", cmd_name)
         if dev.pluginProps.get("logChanges", True):
             indigo.server.log(u"{0}, Sent {1} Command to: {2} ({3}): {4}"
-                              .format(MODELS[model], "Raw" if cmd_name == cmd else "Saved",
+                              .format(MODELS[cat][model], "Raw" if cmd_name == cmd else "Saved",
                                       dev.name, addr, cmd_name))
 
     def set_all_device_states(self):
@@ -201,28 +249,35 @@ class Plugin(indigo.PluginBase):
         # Build a list of IPs and devices to poll.
         for dev in indigo.devices.iter("self"):
             if dev.enabled and dev.configured and dev.deviceTypeId == "spDevice":
-                addrs.add((dev.pluginProps["address"], dev.pluginProps["model"]))
+                addrs.add((dev.pluginProps["address"],
+                           dev.pluginProps.get("model", "0x2711"),
+                           dev.pluginProps.get("category", "SP")))
                 devs.add(dev)
-        for (addr, model) in addrs:
+        for (addr, model, cat) in addrs:
             try:
                 # Magic.
                 bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
+                bl_device.timeout = indigo.activePlugin.pluginPrefs.get("timeout", 8)
                 bl_device.auth()
                 state = bl_device.check_power()
             except Exception as err:
                 for dev in devs:
                     # Update all the sub devices that failed to get queried.
                     if (dev.pluginProps["address"], dev.pluginProps["model"]) == (addr, model):
-                        dev.setErrorStateOnServer(u"Comm Error: {}".format(err))
+                        dev.setErrorStateOnServer(u"Comm Error: {} -> {}".format(addr, err))
+                        if indigo.activePlugin.pluginPrefs.get("logUpdateErrors", True):
+                            indigo.server.log(u"{0}, Error communicating with {1} ({2}): {3}"
+                                              .format(MODELS[cat][model], dev.name, addr, err),
+                                              isError=True)
             else:
                 # Match this address back to the device(s) and update the state(s).
                 for dev in devs:
                     if (dev.pluginProps["address"], dev.pluginProps["model"]) == (addr, model):
-                        if dev.states["onOffState"] != state:
-                            dev.updateStateOnServer("onOffState", state)
-                            if dev.pluginProps.get("logChanges", True):
-                                reply = "On" if state else "Off"
-                                indigo.server.log(u"Device \"{}\" turned {}".format(dev.name, reply))
+                        dev.updateStateOnServer("onOffState", state)
+                        if (dev.states["onOffState"] != state
+                                and dev.pluginProps.get("logChanges", True)):
+                            reply = "On" if state else "Off"
+                            indigo.server.log(u"Device \"{}\" turned {}".format(dev.name, reply))
 
     def update_device_states(self, dev):
         """ Used to update a single device's state(s).
@@ -230,15 +285,17 @@ class Plugin(indigo.PluginBase):
         """
         addr = dev.pluginProps.get("address", "")
         model = dev.pluginProps.get("model", "0x2712")
+        cat = dev.pluginProps.get("category", "SP")
         try:
             # Magic.
             bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
+            bl_device.timeout = indigo.activePlugin.pluginPrefs.get("timeout", 8)
             bl_device.auth()
             state = bl_device.check_power()
         except Exception as err:
             dev.setErrorStateOnServer(u"Comm Error: {}".format(err))
             indigo.server.log(u"{0}, Error connecting to {1} ({2}): {3}"
-                              .format(MODELS[model], dev.name, addr, err), isError=True)
+                              .format(MODELS[cat][model], dev.name, addr, err), isError=True)
         else:
             if dev.pluginProps.get("logActions", True):
                 indigo.server.log(u"Updated \"{0}\" on:{1} -> on:{2}"
@@ -264,13 +321,14 @@ class Plugin(indigo.PluginBase):
             self.update_device_states(dev)
         addr = dev.pluginProps.get("address", "")
         model = dev.pluginProps.get("model", "0x2711")
+        cat = dev.pluginProps.get("category", "SP")
         try:
             # Magic.
             bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
             bl_device.auth()
         except Exception as err:
             indigo.server.log(u"{0}, Error connecting to {1} ({2}): {3}"
-                              .format(MODELS[model], dev.name, addr, err), isError=True)
+                              .format(MODELS[cat][model], dev.name, addr, err), isError=True)
             return
         control_device = False
         if action.deviceAction == indigo.kDeviceAction.TurnOn:
@@ -285,6 +343,7 @@ class Plugin(indigo.PluginBase):
         elif action.deviceAction == indigo.kDeviceAction.AllLightsOff:
             if dev.pluginProps.get("supportsAllLights", False):
                 power_state, reply, control_device = False, "Off", True
+        elif action.deviceAction == indigo.kDeviceAction.AllLightsOn:
             if dev.pluginProps.get("supportsAllLights", False):
                 power_state, reply, control_device = True, "On", True
         elif action.deviceAction == indigo.kDeviceAction.AllOff:
