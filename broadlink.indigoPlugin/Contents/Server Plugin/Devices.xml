@@ -126,4 +126,38 @@
 			</Field>
 		</ConfigUI>
 	</Device>
+	<Device type="relay" id="scDevice">
+		<Name>Smart Switch (SC1)</Name>
+		<ConfigUI>
+			<Field id="category" type="textfield" hidden="true" defaultValue="SC">
+				<Label>Device Category</Label>
+			</Field>
+			<Field type="menu" id="model" defaultValue="0x2711">
+				<Label>Model:</Label>
+				<List class="self" method="_list_known_devices" filter="SC" dynamicReload="false"/>
+			</Field>
+
+			<Field id="address" type="textfield" defaultValue="192.168.1.199">
+				<Label>IP Address:</Label>
+			</Field>
+			<Field id="discoverDevice" type="button">
+				<Title>Discover</Title>
+				<CallbackMethod>_discover_device</CallbackMethod>
+			</Field>
+			<Field type="separator" id="simpleSeparator0" />
+			<Field id="supportsAllOff" type="checkbox" defaultValue="false">
+				<Label>Respond to All Devices Off</Label>
+			</Field>
+			<Field id="supportsAllLights" type="checkbox" defaultValue="false">
+				<Label>Respond to All Lights On/Off</Label>
+			</Field>
+			<Field type="separator" id="simpleSeparator1" />
+			<Field id="logChanges" type="checkbox" defaultValue="true">
+				<Label>Record Changes to Indigo Log</Label>
+			</Field>
+			<Field id="logActions" type="checkbox" defaultValue="true">
+				<Label>Record Actions to Indigo Log</Label>
+			</Field>
+		</ConfigUI>
+	</Device>
 </Devices>
