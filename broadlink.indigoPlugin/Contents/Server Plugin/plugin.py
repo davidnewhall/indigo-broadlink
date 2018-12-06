@@ -260,6 +260,7 @@ class Plugin(indigo.PluginBase):
             try:
                 # This device is not supported in the python-broadlink library, so spoof it as another device.
                 # TODO: Remove this when https://github.com/mjg59/python-broadlink/issues/142 has a solution.
+                rmodel = model
                 model = "0x2711" if model == "0x7547" else model
                 # Magic.
                 bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
@@ -273,7 +274,7 @@ class Plugin(indigo.PluginBase):
                         dev.setErrorStateOnServer(u"Comm Error: {} -> {}".format(addr, err))
                         if indigo.activePlugin.pluginPrefs.get("logUpdateErrors", True):
                             indigo.server.log(u"{0}, Error communicating with {1} ({2}): {3}"
-                                              .format(MODELS[cat][model], dev.name, addr, err),
+                                              .format(MODELS[cat][rmodel], dev.name, addr, err),
                                               isError=True)
             else:
                 # Match this address back to the device(s) and update the state(s).
@@ -295,6 +296,7 @@ class Plugin(indigo.PluginBase):
         try:
             # This device is not supported in the python-broadlink library, so spoof it as another device.
             # TODO: Remove this when https://github.com/mjg59/python-broadlink/issues/142 has a solution.
+            rmodel = model
             model = "0x2711" if model == "0x7547" else model
             # Magic.
             bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
@@ -304,7 +306,7 @@ class Plugin(indigo.PluginBase):
         except Exception as err:
             dev.setErrorStateOnServer(u"Comm Error: {}".format(err))
             indigo.server.log(u"{0}, Error connecting to {1} ({2}): {3}"
-                              .format(MODELS[cat][model], dev.name, addr, err), isError=True)
+                              .format(MODELS[cat][rmodel], dev.name, addr, err), isError=True)
         else:
             if dev.pluginProps.get("logActions", True):
                 indigo.server.log(u"Updated \"{0}\" on:{1} -> on:{2}"
@@ -334,13 +336,14 @@ class Plugin(indigo.PluginBase):
         try:
             # This device is not supported in the python-broadlink library, so spoof it as another device.
             # TODO: Remove this when https://github.com/mjg59/python-broadlink/issues/142 has a solution.
+            rmodel = model
             model = "0x2711" if model == "0x7547" else model
             # Magic.
             bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
             bl_device.auth()
         except Exception as err:
             indigo.server.log(u"{0}, Error connecting to {1} ({2}): {3}"
-                              .format(MODELS[cat][model], dev.name, addr, err), isError=True)
+                              .format(MODELS[cat][mrodel], dev.name, addr, err), isError=True)
             return
         control_device = False
         if action.deviceAction == indigo.kDeviceAction.TurnOn:
