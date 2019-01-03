@@ -343,7 +343,7 @@ class Plugin(indigo.PluginBase):
             bl_device.auth()
         except Exception as err:
             indigo.server.log(u"{0}, Error connecting to {1} ({2}): {3}"
-                              .format(MODELS[cat][mrodel], dev.name, addr, err), isError=True)
+                              .format(MODELS[cat][rmodel], dev.name, addr, err), isError=True)
             return
         control_device = False
         if action.deviceAction == indigo.kDeviceAction.TurnOn:
