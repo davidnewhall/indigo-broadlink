@@ -2,7 +2,8 @@
 
 ![Broadlink Plugin Logo](broadlink.png)
 
-This plugin allows you to control the Broadlink IR blaster and SP Smart Plug products with [Indigo](https://www.indigodomo.com/).
+This plugin allows you to control the Broadlink IR blaster, SP Smart Plug and SC
+Smart Switch products with [Indigo](https://www.indigodomo.com/).
 Hit me up if you need help adding support for newer/different devices. I
 currently only own a RM Pro+ because [oceanplexian](https://github.com/oceanplexian)
 purchased it for me and asked me to make a plugin. Support for the RM3 Mini was added
@@ -10,16 +11,18 @@ by [Colorado Four Wheeler](https://github.com/colorado4wheeler).
 
 ## Tested Devices
 
-- [RM Pro+](https://www.amazon.com/Broadlink-RM33-RM-Pro-Automation/dp/B078W1JVYK)
-- [RM3 Mini3](https://www.amazon.com/Broadlink-RM33-RM-Pro-Automation/dp/B078BCMZH6)
+- [RM Pro+ IR Blaster](https://www.amazon.com/Broadlink-RM33-RM-Pro-Automation/dp/B078W1JVYK)
+- [RM3 Mini3 IR Blaster](https://www.amazon.com/Broadlink-RM33-RM-Pro-Automation/dp/B078BCMZH6)
 - [SP3 Smart Plug](https://www.amazon.com/BroadLink-Required-Control-Occupies-Assistant/dp/B01FDGO948)
+- [SC1 Smart Switch](https://www.amazon.com/Broadlink-Controlled-Intelligent-Housewhole-Appliances/dp/B071VT5594)
 
 Other IR and SP devices may work. Let me know!
 
 ## Future Devices
 
-**This plugin does not expose any of the RF capabilities of the RM devices.** *If you
-would like these features, help me figure it out. I don't have any RF equipment.*
+**This plugin does not expose any of the [RF capabilities](https://github.com/mjg59/python-broadlink/issues/87)
+of the RM Pro devices.** *If you would like these features, help me figure it out. 
+I don't have any RF equipment.*
 
 *This plugin does not expose the energy reading capabilities of the SP3S. I hope
 to have an SP3S soon to test with.*
@@ -46,7 +49,7 @@ Let me know if you'd like others!
 1. Click `Save`.
 1. Use the Commands in Action Groups, Triggers or Schedules.
 
-#### Smart Plugs
+#### Smart Plugs & Smart Switches
 
 These devices have no special states. Select an update interval in the plugin
 configuration; this ensures local state changes are reported as expected.
