@@ -103,9 +103,9 @@ class Plugin(indigo.PluginBase):
             # If there's more than one discovered device, only one is populated
             # in the UI, but all of them are printed into the log file, in red.
             indigo.server.log(
-                u"Discovered Device: {0}|{1} - type: {2}, IP: {3}, Auth: {4}".format(
+                u"Discovered Device: {0}|{1} - type: {2}, IP: {3}, Auth: {4}, Device: {5}".format(
                     model_cat, model_name, values["model"], device.host[0],
-                    values["address"] == device.host[0]),
+                    values["address"] == device.host[0], values["address"] in exclude),
                 isError=(len(devices) > 1))
             if values.get("category", model_cat) == model_cat and device.host[0] not in exclude:
                 # If we find a device with a new IP in the same category, use it.
@@ -113,14 +113,17 @@ class Plugin(indigo.PluginBase):
         # return the special one, or the last one found
         if return_values is not None:
             (values["model"], values["address"]) = return_values
+        if values["model"] not in MODELS[values["category"]]:
+            # Avoid setting Model to '- select an item -'
+            del values["model"]
         return values
 
     def _get_saved_IR_commands_list(self, dev_filter, values, type_id, did):
         """ Devices.xml Callback Method to return saved commands for this device. """
         dev = indigo.devices[did]
-        if "commands" not in dev.pluginProps:
-            return [("none", "- none -")]
-        return json.loads(dev.pluginProps["commands"])
+        if "commands" in dev.pluginProps and dev.pluginProps["commands"] not in ["", "[]"]:
+            return json.loads(dev.pluginProps["commands"])
+        return [("none", "- none -")]
 
     def _delete_saved_IR_commands(self, values, type_id, did):
         """ Devices.xml Callback Method to delete saved commands. """

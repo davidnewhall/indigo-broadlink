@@ -6,7 +6,7 @@
 			<Field id="category" type="textfield" hidden="true" defaultValue="IR">
 				<Label>Device Category</Label>
 			</Field>
-			<Field type="menu" id="model" defaultValue="0x2712" >
+			<Field type="menu" id="model" defaultValue="">
 				<Label>Model:</Label>
 				<List class="self" method="_list_known_devices" filter="IR" dynamicReload="false"/>
 			</Field>
@@ -21,7 +21,7 @@
 			</Field>
 			<Field type="separator" id="simpleSeparator0" />
 
-			<Field id="commands" type="textfield" hidden="true">
+			<Field id="commands" type="textfield" hidden="true" defaultValue="[]">
 				<Label>Commands</Label>
 			</Field>
 			<Field id="savedCommandList" type="list" rows="5">
@@ -98,7 +98,7 @@
 			<Field id="category" type="textfield" hidden="true" defaultValue="SP">
 				<Label>Device Category</Label>
 			</Field>
-			<Field type="menu" id="model" defaultValue="0x2711">
+			<Field type="menu" id="model" defaultValue="">
 				<Label>Model:</Label>
 				<List class="self" method="_list_known_devices" filter="SP" dynamicReload="false"/>
 			</Field>
@@ -132,7 +132,7 @@
 			<Field id="category" type="textfield" hidden="true" defaultValue="SC">
 				<Label>Device Category</Label>
 			</Field>
-			<Field type="menu" id="model" defaultValue="0x2711">
+			<Field type="menu" id="model" defaultValue="">
 				<Label>Model:</Label>
 				<List class="self" method="_list_known_devices" filter="SC" dynamicReload="false"/>
 			</Field>
