@@ -2,12 +2,13 @@
 
 ![Broadlink Plugin Logo](broadlink.png)
 
-This plugin allows you to control the Broadlink IR blaster, SP Smart Plug and SC
-Smart Switch products with [Indigo](https://www.indigodomo.com/).
+This plugin allows you to read sensors for a Broadlink A1, and control the Broadlink
+IR blaster, SP Smart Plug and SC Smart Switch products with [Indigo](https://www.indigodomo.com/).
 Hit me up if you need help adding support for newer/different devices. I
 currently only own a RM Pro+ because [oceanplexian](https://github.com/oceanplexian)
 purchased it for me and asked me to make a plugin. Support for the RM3 Mini was added
-by [Colorado Four Wheeler](https://github.com/colorado4wheeler).
+by [Colorado Four Wheeler](https://github.com/colorado4wheeler). Support for other
+devices has been added slowly as they become available for testing.
 
 ## Tested Devices
 
@@ -15,23 +16,15 @@ by [Colorado Four Wheeler](https://github.com/colorado4wheeler).
 - [RM3 Mini3 IR Blaster](https://www.amazon.com/Broadlink-RM33-RM-Pro-Automation/dp/B078BCMZH6)
 - [SP3 Smart Plug](https://www.amazon.com/BroadLink-Required-Control-Occupies-Assistant/dp/B01FDGO948)
 - [SC1 Smart Switch](https://www.amazon.com/Broadlink-Controlled-Intelligent-Housewhole-Appliances/dp/B071VT5594)
+- [A1 Environment Sensor](https://www.amazon.com/Broadlink-Environment-Intelligent-Evironment-Freshener/dp/B00ZPF9RAE)
 
 Other IR and SP devices may work. Let me know!
 
 ## Future Devices
 
 **This plugin does not expose any of the [RF capabilities](https://github.com/mjg59/python-broadlink/issues/87)
-of the RM Pro devices.** *If you would like these features, help me figure it out. 
+of the RM Pro devices.** *If you would like these features, help me figure it out.
 I don't have any RF equipment.*
-
-*This plugin does not expose the energy reading capabilities of the SP3S. I hope
-to have an SP3S soon to test with.*
-
-Other Broadlink devices I'd like to include in future revisions:
-
-- [A1 Environment Sensors](http://www.ibroadlink.com/a1/)
-
-Let me know if you'd like others!
 
 ## Usage
 
