@@ -1,13 +1,14 @@
 # Indigo Plugin: Broadlink Devices
 
-![Broadlink Plugin Logo](broadlink.png)
+![Broadlink Plugin Logo](https://github.com/davidnewhall/indigo-broadlink/raw/master/broadlink.png)
 
-This plugin allows you to control the Broadlink IR blaster, SP Smart Plug and SC
-Smart Switch products with [Indigo](https://www.indigodomo.com/).
+This plugin allows you to read sensors for a Broadlink A1, and control the Broadlink
+IR blaster, SP Smart Plug and SC Smart Switch products with [Indigo](https://www.indigodomo.com/).
 Hit me up if you need help adding support for newer/different devices. I
 currently only own a RM Pro+ because [oceanplexian](https://github.com/oceanplexian)
 purchased it for me and asked me to make a plugin. Support for the RM3 Mini was added
-by [Colorado Four Wheeler](https://github.com/colorado4wheeler).
+by [Colorado Four Wheeler](https://github.com/colorado4wheeler). Support for other
+devices has been added slowly as they become available for testing.
 
 ## Tested Devices
 
@@ -15,23 +16,13 @@ by [Colorado Four Wheeler](https://github.com/colorado4wheeler).
 - [RM3 Mini3 IR Blaster](https://www.amazon.com/Broadlink-RM33-RM-Pro-Automation/dp/B078BCMZH6)
 - [SP3 Smart Plug](https://www.amazon.com/BroadLink-Required-Control-Occupies-Assistant/dp/B01FDGO948)
 - [SC1 Smart Switch](https://www.amazon.com/Broadlink-Controlled-Intelligent-Housewhole-Appliances/dp/B071VT5594)
+- [A1 Environment Sensor](https://www.amazon.com/Broadlink-Environment-Intelligent-Evironment-Freshener/dp/B00ZPF9RAE)
 
 Other IR and SP devices may work. Let me know!
 
-## Future Devices
-
 **This plugin does not expose any of the [RF capabilities](https://github.com/mjg59/python-broadlink/issues/87)
-of the RM Pro devices.** *If you would like these features, help me figure it out. 
+of the RM Pro devices.** *If you would like these features, help me figure it out.
 I don't have any RF equipment.*
-
-*This plugin does not expose the energy reading capabilities of the SP3S. I hope
-to have an SP3S soon to test with.*
-
-Other Broadlink devices I'd like to include in future revisions:
-
-- [A1 Environment Sensors](http://www.ibroadlink.com/a1/)
-
-Let me know if you'd like others!
 
 ## Usage
 
@@ -54,6 +45,15 @@ Let me know if you'd like others!
 These devices have no special states. Select an update interval in the plugin
 configuration; this ensures local state changes are reported as expected.
 Control these devices with On/Off commands as you would any other relay device.
+
+#### A1 Environmental Sensor
+
+All five sensors are exposed as custom device states on a single device. We'd break
+them out into individual devices, but it would require a dedicated plugin due to
+limitations in the device architecture for Indigo plugins. Once you add the device
+you can see the device states in the bottom pane of Indigo. Just grab the slider
+dot at the bottom and drag it up. You can create triggers against the device states
+and add them to control pages.
 
 ## Licenses
 
