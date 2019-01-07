@@ -494,6 +494,8 @@ class a1(device):
         data['noise'] = 'normal'
       elif noise == 2:
         data['noise'] = 'noisy'
+      elif noise == 3:
+        data['noise'] = 'loud'
       else:
         data['noise'] = 'unknown'
       return data

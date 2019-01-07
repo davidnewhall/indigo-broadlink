@@ -111,6 +111,10 @@
 				<CallbackMethod>_discover_device</CallbackMethod>
 			</Field>
 			<Field type="separator" id="simpleSeparator0" />
+			<Field id="SupportsEnergyMeterCurPower" type="checkbox" defaultValue="false" hidden="true">
+				<Label>Enable Energy Meter</Label>
+				<Description>SP2S and SP3S only</Description>
+			</Field>
 			<Field id="supportsAllOff" type="checkbox" defaultValue="false">
 				<Label>Respond to All Devices Off</Label>
 			</Field>
@@ -126,6 +130,88 @@
 			</Field>
 		</ConfigUI>
 	</Device>
+
+	<Device type="custom" id="esDevice">
+		<Name>A1 Environmental Sensor</Name>
+		<ConfigUI>
+			<Field id="category" type="textfield" hidden="true" defaultValue="ES" />
+			<Field type="menu" id="model" defaultValue=""><Label>Model:</Label>
+				<List class="self" method="_list_known_devices" filter="ES" dynamicReload="false"/>
+			</Field>
+			<Field id="address" type="textfield" defaultValue="192.168.1.199"><Label>IP Address:</Label></Field>
+			<Field id="discoverDevice" type="button">
+				<Title>Discover</Title>
+				<CallbackMethod>_discover_device</CallbackMethod>
+			</Field>
+			<Field type="separator" id="simpleSeparator0" />
+			<Field id="logChanges" type="checkbox" defaultValue="true">
+				<Label>Record Changes to Indigo Log</Label>
+			</Field>
+	  </ConfigUI>
+		<States>
+			<State id="temperatureC" readonly="YES">
+				<ValueType>Number</ValueType>
+				<TriggerLabel>Temperature C</TriggerLabel>
+				<ControlPageLabel>Temperature C</ControlPageLabel>
+			</State>
+			<State id="temperatureF" readonly="YES">
+				<ValueType>Number</ValueType>
+				<TriggerLabel>Temperature F</TriggerLabel>
+				<ControlPageLabel>Temperature F</ControlPageLabel>
+			</State>
+			<State id="humidity" readonly="YES">
+				<ValueType>Number</ValueType>
+				<TriggerLabel>Humidity</TriggerLabel>
+				<ControlPageLabel>Humidity</ControlPageLabel>
+			</State>
+			<State id="noiseLevel" readonly="YES">
+				<ValueType>Number</ValueType>
+				<TriggerLabel>Noise Level (number)</TriggerLabel>
+				<ControlPageLabel>Noise Level (number)</ControlPageLabel>
+			</State>
+			<State id="luminance" readonly="YES">
+				<ValueType>Number</ValueType>
+				<TriggerLabel>Luminance (0-3)</TriggerLabel>
+				<ControlPageLabel>Luminance</ControlPageLabel>
+			</State>
+			<State id="airQuality" readonly="YES">
+				<ValueType>Number</ValueType>
+				<TriggerLabel>Air Quality (0-3)</TriggerLabel>
+				<ControlPageLabel>Air Quality</ControlPageLabel>
+			</State>
+			<State id="temperatureC_ui" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>Temperature C (string)</TriggerLabel>
+				<ControlPageLabel>Temperature C (string)</ControlPageLabel>
+			</State>
+			<State id="temperatureF_ui" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>Temperature F (string)</TriggerLabel>
+				<ControlPageLabel>Temperature F (string)</ControlPageLabel>
+			</State>
+			<State id="humidity_ui" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>Humidity (string)</TriggerLabel>
+				<ControlPageLabel>Humidity (string)</ControlPageLabel>
+			</State>
+			<State id="noiseLevel_ui" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>Noise Level (string)</TriggerLabel>
+				<ControlPageLabel>Noise Level (string)</ControlPageLabel>
+			</State>
+			<State id="luminance_ui" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>Luminance (string)</TriggerLabel>
+				<ControlPageLabel>Luminance (string)</ControlPageLabel>
+			</State>
+			<State id="airQuality_ui" readonly="YES">
+				<ValueType>String</ValueType>
+				<TriggerLabel>Air Quality (string)</TriggerLabel>
+				<ControlPageLabel>Air Quality (string)</ControlPageLabel>
+			</State>
+		</States>
+	</Device>
+
 	<Device type="relay" id="scDevice">
 		<Name>Smart Switch (SC1)</Name>
 		<ConfigUI>
