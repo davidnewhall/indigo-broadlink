@@ -147,7 +147,7 @@
 			<Field id="logChanges" type="checkbox" defaultValue="true">
 				<Label>Record Changes to Indigo Log</Label>
 			</Field>
-	  </ConfigUI>
+		</ConfigUI>
 		<States>
 			<State id="temperatureC" readonly="YES">
 				<ValueType>Number</ValueType>
