@@ -251,25 +251,37 @@ class Plugin(indigo.PluginBase):
 
     def set_all_device_states(self):
         """ Updates Indigo with current devices' states. """
-        addrs, devs = set(), set()
+        addrs, devs, a1devs = set(), set(), set()
         # Build a list of IPs and devices to poll.
         for dev in indigo.devices.iter("self"):
-            if dev.enabled and dev.configured and dev.deviceTypeId != "rmProPlusDevice":
+            if dev.enabled and dev.configured and dev.deviceTypeId in ["spDevice", "scDevice"]:
                 addrs.add((dev.pluginProps["address"],
                            dev.pluginProps.get("model", "0x2711"),
                            dev.pluginProps.get("category", "SP")))
                 devs.add(dev)
+            if dev.enabled and dev.configured and dev.deviceTypeId in ["esDevice"]:
+                a1devs.add(dev)
+        self.update_a1_devices(a1devs)
+        self.update_relays_devices(addrs, devs)
+
+    def update_relays_devices(self, addrs, devs):
+        """ Updates Indigo with current SP and SC devices' states.  Called from set_all_device_states() """
         for (addr, model, cat) in addrs:
+            # This device is not supported in the python-broadlink library, so spoof it as another device.
+            # TODO: Remove this when https://github.com/mjg59/python-broadlink/issues/142 has a solution.
+            rmodel = model
+            model = "0x2711" if model == "0x7547" else model
+            bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
+            bl_device.timeout = indigo.activePlugin.pluginPrefs.get("timeout", 8)
+            energy = 0.0
             try:
-                # This device is not supported in the python-broadlink library, so spoof it as another device.
-                # TODO: Remove this when https://github.com/mjg59/python-broadlink/issues/142 has a solution.
-                rmodel = model
-                model = "0x2711" if model == "0x7547" else model
                 # Magic.
-                bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
-                bl_device.timeout = indigo.activePlugin.pluginPrefs.get("timeout", 8)
                 bl_device.auth()
                 state = bl_device.check_power()
+                try:
+                    energy = bl_device.get_energy()
+                except AttributeError:
+                    energy = 0.0
             except Exception as err:
                 for dev in devs:
                     # Update all the sub devices that failed to get queried.
@@ -284,10 +296,54 @@ class Plugin(indigo.PluginBase):
                 for dev in devs:
                     if (dev.pluginProps["address"], dev.pluginProps["model"]) == (addr, model):
                         dev.updateStateOnServer("onOffState", state)
+                        if "curEnergyLevel" in dev.states:
+                            dev.updateStateOnServer("curEnergyLevel", energy)
                         if (dev.states["onOffState"] != state
                                 and dev.pluginProps.get("logChanges", True)):
                             reply = "On" if state else "Off"
                             indigo.server.log(u"Device \"{}\" turned {}".format(dev.name, reply))
+
+    def update_a1_devices(self, devs):
+        """ Updates Indigo with current A1 devices' states.  Called from set_all_device_states() """
+        addrs = set()
+        for dev in devs:
+            addrs.add((dev.pluginProps["address"],
+                       dev.pluginProps.get("model", "0x2714"),
+                       dev.pluginProps.get("category", "ES")))
+        for (addr, model, cat) in addrs:
+            bl_device = broadlink.gendevice(int(model, 0), (addr, 80), "000000000000")
+            bl_device.timeout = indigo.activePlugin.pluginPrefs.get("timeout", 8)
+            try:
+                bl_device.auth()
+                sensors = bl_device.check_sensors_raw()
+                sensors_ui = bl_device.check_sensors()
+            except Exception as err:
+                for dev in devs:
+                    if (dev.pluginProps["address"], dev.pluginProps["model"]) == (addr, model):
+                        dev.setErrorStateOnServer(u"Comm Error: {} -> {}".format(addr, err))
+                        if indigo.activePlugin.pluginPrefs.get("logUpdateErrors", True):
+                            indigo.server.log(u"{0}, Error communicating with {1} ({2}): {3}"
+                                              .format(MODELS[cat][model], dev.name, addr, err),
+                                              isError=True)
+            else:
+                # Match this address back to the device(s) and update the state(s).
+                for dev in devs:
+                    if (dev.pluginProps["address"], dev.pluginProps["model"]) != (addr, model):
+                        continue
+                        # TODO add log
+                    dev.updateStatesOnServer([
+                        {"key": "humidity", "value": round(sensors["humidity"], 1)},
+                        {"key": "temperatureC", "value": round(sensors["temperature"], 1)},
+                        {"key": "temperatureF", "value": round((sensors["temperature"]*1.8+32), 1)},
+                        {"key": "noiseLevel", "value": sensors["noise"]},
+                        {"key": "luminance", "value": sensors["light"]},
+                        {"key": "airQuality", "value": sensors["air_quality"]},
+                        {"key": "humidity_ui", "value": "{} %RH".format(round(sensors["humidity"], 1))},
+                        {"key": "temperatureC_ui", "value": u"{} \N{DEGREE SIGN}C".format(round(sensors["temperature"], 1))},
+                        {"key": "temperatureF_ui", "value": u"{} \N{DEGREE SIGN}F".format(round((sensors["temperature"]*1.8+32), 1))},
+                        {"key": "noiseLevel_ui", "value": sensors_ui["noise"]},
+                        {"key": "luminance_ui", "value": sensors_ui["light"]},
+                        {"key": "airQuality_ui", "value": sensors_ui["air_quality"]}])
 
     def update_device_states(self, dev):
         """ Used to update a single device's state(s).
